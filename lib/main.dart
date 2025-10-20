@@ -1,0 +1,110 @@
+import 'package:go_mep_application/common/localization/app_localizations.dart';
+import 'package:go_mep_application/common/localization/localizations_config.dart';
+import 'package:go_mep_application/common/theme/app_dimens.dart';
+import 'package:go_mep_application/common/theme/globals/config.dart';
+import 'package:go_mep_application/common/theme/globals/globals.dart';
+import 'package:go_mep_application/common/theme/globals/theme_provider.dart';
+import 'package:go_mep_application/common/utils/custom_navigator.dart';
+import 'package:go_mep_application/common/utils/utility.dart';
+import 'package:go_mep_application/presentation/auth/splash_screen/ui/splash_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:overlay_support/overlay_support.dart';
+import 'package:provider/provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(
+  //     options: DefaultFirebaseOptions.currentPlatform,
+  //     name: 'Delta'
+  // );
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  Globals.myApp = GlobalKey<_MyAppState>();
+
+  await Config.getPreferences();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
+      child: MyApp(key: Globals.myApp),
+    ),
+  );
+}
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Widget? child;
+  GlobalKey _key = GlobalKey();
+  @override
+  void initState() {
+    super.initState();
+    child = const SplashScreen();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+        return OverlaySupport.global(
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+              statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+              systemNavigationBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+            ),
+            child: MaterialApp(
+               key: _key,
+              debugShowCheckedModeBanner: false,
+              navigatorKey: CustomNavigator.navigatorKey,
+              theme: ThemeData.light(),
+              darkTheme: isDarkMode ? ThemeData.dark() : ThemeData.light(),
+              themeMode: themeProvider.themeMode,
+              locale: LocalizationsConfig.getCurrentLocale(),
+              localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              builder: (context, child) {
+                ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+                  return Container();
+                };
+                AppSizes.init(context);
+                return MediaQuery(
+                  data: MediaQuery.of(context)
+                      .copyWith(textScaler: TextScaler.noScaling),
+                  child: GestureDetector(
+                    onTap: Utility.hideKeyboard,
+                    child: child ?? Container(),
+                  ),
+                );
+              },
+              supportedLocales: const [
+                Locale('vi'),
+                Locale('en'),
+              ],
+              home: const SplashScreen(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

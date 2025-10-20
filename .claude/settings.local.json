@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(for file in /Volumes/DucsM1/GoMepApplication/go_mep/documents/STEP_*.md)",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
