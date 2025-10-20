@@ -556,7 +556,7 @@ Contains environment-specific configuration:
     "server": "https://staging-api.gomep.com",
     "version": "1.0.0"
   },
-  "production": {
+  "production": {`
     "server": "https://api.gomep.com",
     "version": "1.0.0"
   }

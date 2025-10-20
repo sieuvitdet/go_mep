@@ -3,7 +3,6 @@ import 'package:go_mep_application/common/theme/app_dimens.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/presentation/base/google_map/ui/map_screen.dart';
 import 'package:go_mep_application/presentation/base/news/ui/news_screen.dart';
-import 'package:go_mep_application/presentation/base/notifications/ui/notification_screen.dart';
 import 'package:go_mep_application/presentation/base/restaurant/ui/restaurant_screen.dart';
 import 'package:go_mep_application/presentation/main/bloc/main_bloc.dart';
 import 'package:flutter/material.dart';
