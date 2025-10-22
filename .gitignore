@@ -10,6 +10,9 @@
 .vscode/
 
 .idea/
+
+# Environment configuration (contains sensitive API keys)
+lib/common/utils/env_config.dart
 .flutter-plugins
 .flutter-plugins-dependencies
 **/generated_plugin_registrant.dart
