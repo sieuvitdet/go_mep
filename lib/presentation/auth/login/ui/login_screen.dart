@@ -3,12 +3,14 @@ import 'package:go_mep_application/common/localization/app_localizations.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/theme/assets.dart';
 import 'package:go_mep_application/common/theme/globals/globals.dart';
+import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/data/local/local/shared_prefs/shared_prefs_key.dart';
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/presentation/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_mep_application/presentation/main/ui/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -200,6 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
+                      CustomNavigator.pushReplacement(context, MainScreen());
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Center(

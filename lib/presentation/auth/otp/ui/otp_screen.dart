@@ -131,7 +131,7 @@ class _OtpScreenState extends State<OtpScreen> with WidgetsBindingObserver {
                         final isValid = isValidSnapshot.data ?? false;
       
                         return CustomOtpTextField(
-                          length: 6,
+                          length: 4,
                           controllers: _bloc.otpControllers,
                           focusNodes: _bloc.otpFocusNodes,
                           hasError: hasErrorSnapshot.data ?? false,

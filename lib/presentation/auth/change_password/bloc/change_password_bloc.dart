@@ -1,9 +1,11 @@
+import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/common/widgets/dialogs/gomep_loading_dialog.dart';
 import 'package:go_mep_application/common/localization/app_localizations.dart';
 import 'package:go_mep_application/common/lang_key/lang_key.dart';
 import 'package:flutter/material.dart';
+import 'package:go_mep_application/presentation/auth/login/ui/login_screen.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ChangePasswordBloc {
@@ -127,7 +129,7 @@ class ChangePasswordBloc {
     }
     if (!hasError) {
       GoMepLoadingDialog.show(context, message: "Đang đổi mật khẩu");
-      await Future.delayed(const Duration(seconds: 5));
+      await Future.delayed(const Duration(seconds: 2));
       // ResponseModel responseModel = await Repository.changePassword(
       //   context,
       //   ChangePasswordReqModel(
@@ -137,6 +139,7 @@ class ChangePasswordBloc {
       //   ),
       // );
       GoMepLoadingDialog.hide(context);
+      CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
       // if (responseModel.success ?? false) {
       //   ChangePasswordResModel changePasswordResModel =
       //       ChangePasswordResModel.fromJson(responseModel.result ?? {});

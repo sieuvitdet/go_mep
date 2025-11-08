@@ -103,24 +103,28 @@ class ResetPasswordBloc {
     }
     try {
       GoMepLoadingDialog.show(context, message: "Đang đặt lại mật khẩu");
-      ResponseModel responseModel = await Repository.resetPassword(
-        context,
-        ResetPasswordReqModel(
-          newPassword: passwordNewController.text,
-          confirmPassword: confirmPasswordNewController.text,
-        ),
-      );
+      // ResponseModel responseModel = await Repository.resetPassword(
+      //   context,
+      //   ResetPasswordReqModel(
+      //     newPassword: passwordNewController.text,
+      //     confirmPassword: confirmPasswordNewController.text,
+      //   ),
+      // );
 
+      await Future.delayed(const Duration(seconds: 1));
       GoMepLoadingDialog.hide(context);
 
-      if (responseModel.success ?? false) {
-        if (context.mounted) {
-          await Utility.toast("Tạo mật khẩu mới thành công!");
-          await Future.delayed(Duration(seconds: 1));
-          CustomNavigator.popToRootAndPushReplacement(
+      CustomNavigator.popToRootAndPushReplacement(
                   context, LoginScreen(),);
-        }
-      }
+
+      // if (responseModel.success ?? false) {
+      //   if (context.mounted) {
+      //     await Utility.toast("Tạo mật khẩu mới thành công!");
+      //     await Future.delayed(Duration(seconds: 1));
+      //     CustomNavigator.popToRootAndPushReplacement(
+      //             context, LoginScreen(),);
+      //   }
+      // }
     } catch (e) {
       GoMepLoadingDialog.hide(context);
       Utility.toast("Đặt lại mật khẩu thất bại");

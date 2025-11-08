@@ -32,8 +32,9 @@ class AccountBloc {
   Future<void> onLogOut(BuildContext context) async {
     _loadingController.add(true);
     GoMepLoadingDialog.show(context);
+    await Future.delayed(const Duration(seconds: 1));
 
-    await Repository.logout(context);
+    // await Repository.logout(context);
 
     GoMepLoadingDialog.hide(context);
     _loadingController.add(false);

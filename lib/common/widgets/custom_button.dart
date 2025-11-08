@@ -38,54 +38,73 @@ class CustomButton extends StatelessWidget {
   }
 
   Widget _buildBody() {
-    return ElevatedButton(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (icon != null) ...[
-            CustomImageIcon(
-              icon: icon!,
-              size: 20,
-              color: style?.color ??
-                  (isButtonSecond
-                      ? AppColors.primary
-                      : textColor ?? AppColors.white),
-            ),
-            Gaps.hGap2
-          ],
-          if (expand) Flexible(child: _buildText()) else _buildText()
-        ],
-      ),
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(!enable
-            ? AppColors.greyLight
-            : isButtonSecond
-                ? Colors.white
-                : color ?? AppColors.primary),
-        side: isButtonSecond
-            ? WidgetStateProperty.all(
-                BorderSide(color: AppColors.primary, width: 1),
-              )
-            : (borderColor != null
-                ? WidgetStateProperty.all(
-                    BorderSide(color: borderColor!, width: 1),
-                  )
-                : null),
-        padding: WidgetStateProperty.all(EdgeInsets.all(AppSizes.semiRegular)),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
+    // Xác định background decoration
+    final BoxDecoration? decoration = !enable
+        ? BoxDecoration(
+            color: AppColors.greyLight,
             borderRadius: BorderRadius.circular(radius ?? 8),
+          )
+        : isButtonSecond
+            ? BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: AppColors.gradientStart, width: 1),
+                borderRadius: BorderRadius.circular(radius ?? 8),
+              )
+            : (color != null
+                ? BoxDecoration(
+                    color: color,
+                    border: borderColor != null
+                        ? Border.all(color: borderColor!, width: 1)
+                        : null,
+                    borderRadius: BorderRadius.circular(radius ?? 8),
+                  )
+                : BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.gradientStart, AppColors.gradientEnd],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    border: borderColor != null
+                        ? Border.all(color: borderColor!, width: 1)
+                        : null,
+                    borderRadius: BorderRadius.circular(radius ?? 8),
+                  ));
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: enable
+            ? () {
+                if (onTap != null) {
+                  onTap!();
+                }
+              }
+            : null,
+        borderRadius: BorderRadius.circular(radius ?? 8),
+        child: Ink(
+          decoration: decoration,
+          child: Container(
+            padding: EdgeInsets.all(AppSizes.semiRegular),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  CustomImageIcon(
+                    icon: icon!,
+                    size: 20,
+                    color: style?.color ??
+                        (isButtonSecond
+                            ? AppColors.gradientStart
+                            : textColor ?? AppColors.white),
+                  ),
+                  Gaps.hGap2
+                ],
+                if (expand) Flexible(child: _buildText()) else _buildText()
+              ],
+            ),
           ),
         ),
       ),
-      onPressed: enable
-          ? () {
-              // Wrap onTap with trackEvent
-              if (onTap != null) {
-                onTap!(); // Gọi hàm onTap gốc
-              }
-            }
-          : null,
     );
   }
 

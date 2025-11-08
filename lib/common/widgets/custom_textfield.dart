@@ -80,7 +80,7 @@ class CustomTextField extends StatelessWidget {
           InkWell(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: borDerColor ?? AppColors.grey),
+                border: Border.all(color: borDerColor ?? AppColors.greyLight),
                 color: backgroundColor ?? AppColors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -109,52 +109,35 @@ class CustomTextField extends StatelessWidget {
             onChanged: onChanged,
             maxLength: maxLength,
             decoration: InputDecoration(
-                label: label ??
-                    RichText(
-                      text: TextSpan(
-                        text: hintText ?? "",
-                        style: TextStyle(
-                          color: AppColors.hint,
-                          fontSize: fontSizeHint ?? AppTextSizes.body,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: isRequired ? ' *' : '',
-                            style: TextStyle(
-                              color: AppColors.error,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
+                hint: RichText(
+                  text: TextSpan(
+                    text: hintText ?? "",
+                    style: TextStyle(
+                      color: AppColors.hint,
+                      fontSize: fontSizeHint ?? AppTextSizes.body,
                     ),
-                hint: (label == null)
-                    ? null
-                    : RichText(
-                        text: TextSpan(
-                          text: hintText ?? "",
-                          style: TextStyle(
-                            color: AppColors.hint,
-                            fontSize: fontSizeHint ?? AppTextSizes.body,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: isRequired ? ' *' : '',
-                              style: TextStyle(
-                                color: AppColors.error,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
+                    children: [
+                      TextSpan(
+                        text: isRequired ? ' *' : '',
+                        style: TextStyle(
+                          color: AppColors.error,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                    ],
+                  ),
+                ),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                       color: borDerColor ?? AppColors.greyLight, width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: (errorMessage != null && errorMessage!.isNotEmpty) ? AppColors.red : AppColors.primary, width: 1.0),
+                  borderSide: BorderSide(
+                      color: (errorMessage != null && errorMessage!.isNotEmpty)
+                          ? AppColors.red
+                          : AppColors.primary,
+                      width: 1.0),
                   borderRadius: BorderRadius.all(Radius.circular(10.0)),
                 ),
                 isDense: true,

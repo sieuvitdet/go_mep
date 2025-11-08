@@ -68,14 +68,14 @@ class OtpBloc {
     streamHasError.add(false);
     streamIsValid.add(false);
 
-    if (otp.length == 6) {
+    if (otp.length == 4) {
       _validateOtp(otp);
     }
   }
 
   void onOtpCompleted(String otp) {
     streamOtpCode.add(otp);
-    if (otp.length == 6) {
+    if (otp.length == 4) {
       _validateOtp(otp);
     }
   }
@@ -87,33 +87,44 @@ class OtpBloc {
     Utility.hideKeyboard();
 
     try {
-      ResponseModel responseModel = await Repository.verifyResetPassword(
-        context,
-        OtpVerifyReqModel(
-          phoneNumber: phoneNumber,
-          otp: otp,
-        ),
-      );
-
-      if (responseModel.success ?? false) {
-        streamIsValid.add(true);
+      GoMepLoadingDialog.show(context, message: "Đang xác thực OTP");
+      await Future.delayed(Duration(seconds: 2));
+      GoMepLoadingDialog.hide(context);
+      streamIsValid.add(true);
         streamHasError.add(false);
-        await Future.delayed(Duration(milliseconds: 2000));
+        await Future.delayed(Duration(milliseconds: 1000));
             CustomNavigator.pushReplacement(
                 context,
                 ResetPasswordScreen(
                   phoneNumber: phoneNumber,
                 ));
-      } else {
-        streamError.add(responseModel.message);
+      // ResponseModel responseModel = await Repository.verifyResetPassword(
+      //   context,
+      //   OtpVerifyReqModel(
+      //     phoneNumber: phoneNumber,
+      //     otp: otp,
+      //   ),
+      // );
 
-        streamHasError.add(true);
-        streamIsValid.add(false);
-        await Future.delayed(Duration(milliseconds: 2000));
-        _clearOtp();
-        _isValidating = false; // Reset flag on error
-        streamError.add(null);
-      }
+      // if (responseModel.success ?? false) {
+      //   streamIsValid.add(true);
+      //   streamHasError.add(false);
+      //   await Future.delayed(Duration(milliseconds: 2000));
+      //       CustomNavigator.pushReplacement(
+      //           context,
+      //           ResetPasswordScreen(
+      //             phoneNumber: phoneNumber,
+      //           ));
+      // } else {
+      //   streamError.add(responseModel.message);
+
+      //   streamHasError.add(true);
+      //   streamIsValid.add(false);
+      //   await Future.delayed(Duration(milliseconds: 2000));
+      //   _clearOtp();
+      //   _isValidating = false; // Reset flag on error
+      //   streamError.add(null);
+      // }
     } catch (e) {
       GoMepLoadingDialog.hide(context);
       streamHasError.add(true);
@@ -163,9 +174,9 @@ class OtpBloc {
   }
 
   void fillOtpManually(String otp) {
-    if (otp.length != 6) return;
+    if (otp.length != 4) return;
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < 4; i++) {
       otpControllers[i].text = otp[i];
     }
 
