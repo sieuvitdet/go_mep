@@ -93,4 +93,10 @@ class AppColors {
         ? AppColors.greyLight.withValues(alpha: 0.3)
         : AppColors.black.withValues(alpha: 0.1);
   }
+
+  static Color getBackgroundItemComment(BuildContext context) {
+    return Theme.of(context).brightness == Brightness.dark
+        ? Color(0xFF121212)
+        : AppColors.greyLightBackGround;
+  }
 }

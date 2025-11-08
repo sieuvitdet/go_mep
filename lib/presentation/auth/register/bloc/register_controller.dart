@@ -2,6 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
+import 'package:go_mep_application/data/model/req/register_req_model.dart';
+import 'package:go_mep_application/net/api/interaction.dart';
+import 'package:go_mep_application/net/repository/repository.dart';
+import 'package:go_mep_application/net/http/http_connection.dart';
+import 'package:go_mep_application/presentation/auth/login/ui/login_screen.dart';
 
 enum RegisterStep {
   phone,
@@ -14,6 +19,9 @@ class RegisterState {
   final String phoneNumber;
   final String otp;
   final String password;
+  final String fullName;
+  final String dateOfBirth;
+  final String address;
   final bool isLoading;
   final String? errorMessage;
 
@@ -22,6 +30,9 @@ class RegisterState {
     this.phoneNumber = '',
     this.otp = '',
     this.password = '',
+    this.fullName = '',
+    this.dateOfBirth = '',
+    this.address = '',
     this.isLoading = false,
     this.errorMessage,
   });
@@ -31,6 +42,9 @@ class RegisterState {
     String? phoneNumber,
     String? otp,
     String? password,
+    String? fullName,
+    String? dateOfBirth,
+    String? address,
     bool? isLoading,
     String? errorMessage,
   }) {
@@ -39,6 +53,9 @@ class RegisterState {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       otp: otp ?? this.otp,
       password: password ?? this.password,
+      fullName: fullName ?? this.fullName,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      address: address ?? this.address,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
     );
@@ -57,6 +74,9 @@ class RegisterController {
   final otpController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  final fullNameController = TextEditingController();
+  final dateOfBirthController = TextEditingController();
+  final addressController = TextEditingController();
 
   // Focus nodes
   final phoneFocusNode = FocusNode();
@@ -223,15 +243,33 @@ class RegisterController {
     }
   }
 
-  // Submit password
+  // Submit password and complete registration
   Future<void> submitPassword() async {
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
+    final fullName = fullNameController.text.trim();
+    final dateOfBirth = dateOfBirthController.text.trim();
+    final address = addressController.text.trim();
 
     if (password.isEmpty || confirmPassword.isEmpty) {
       Utility.toast('Vui lòng nhập đầy đủ mật khẩu');
       return;
     }
+
+    // if (fullName.isEmpty) {
+    //   Utility.toast('Vui lòng nhập họ tên');
+    //   return;
+    // }
+
+    // if (dateOfBirth.isEmpty) {
+    //   Utility.toast('Vui lòng nhập ngày sinh');
+    //   return;
+    // }
+
+    // if (address.isEmpty) {
+    //   Utility.toast('Vui lòng nhập địa chỉ');
+    //   return;
+    // }
 
     if (password != confirmPassword) {
       Utility.toast('Mật khẩu không khớp');
@@ -245,15 +283,33 @@ class RegisterController {
 
     _updateState(_currentState.copyWith(isLoading: true));
 
-    try {
-      // TODO: Call API to complete registration
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+    await Future.delayed(const Duration(seconds: 3));
 
-      _updateState(_currentState.copyWith(isLoading: false));
+    try {
+      final registerModel = RegisterReqModel(
+        phoneNumber: _currentState.phoneNumber,
+        password: password,
+        fullName: fullName,
+        dateOfBirth: dateOfBirth,
+        address: address,
+      );
       Utility.toast('Đăng ký thành công!');
 
-      // Navigate back to login screen
-      CustomNavigator.pop(context);
+      CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
+
+      // ResponseModel responseModel = await Repository.register(context, registerModel);
+
+      // if (responseModel.success ?? false) {
+      //   _updateState(_currentState.copyWith(isLoading: false));
+      //   Utility.toast('Đăng ký thành công!');
+      //   CustomNavigator.pop(context);
+      // } else {
+      //   _updateState(_currentState.copyWith(
+      //     isLoading: false,
+      //     errorMessage: 'Đăng ký thất bại, vui lòng thử lại',
+      //   ));
+      //   Utility.toast('Đăng ký thất bại, vui lòng thử lại');
+      // }
     } catch (e) {
       _updateState(_currentState.copyWith(
         isLoading: false,
@@ -290,6 +346,9 @@ class RegisterController {
     otpController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
+    fullNameController.dispose();
+    dateOfBirthController.dispose();
+    addressController.dispose();
     phoneFocusNode.dispose();
     passwordFocusNode.dispose();
     confirmPasswordFocusNode.dispose();

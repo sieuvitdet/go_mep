@@ -1,30 +1,15 @@
 class LoginReqModel {
-  String? deviceId;
-  String? deviceName;
-  String? devicePlatform;
-  String? appVersion;
-  String? username;
+  String? phoneNumber;
   String? password;
-  bool? rememberMe;
 
   LoginReqModel(
-      {this.deviceId,
-      this.deviceName,
-      this.devicePlatform,
-      this.appVersion,
-      this.username,
-      this.password,
-      this.rememberMe});
+      {this.phoneNumber,
+      this.password,});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['deviceId'] = this.deviceId;
-    data['deviceName'] = this.deviceName;
-    data['devicePlatform'] = this.devicePlatform;
-    data['appVersion'] = this.appVersion;
-    data['username'] = this.username;
+    data['phone_number'] = this.phoneNumber; // Map to phone_number for API
     data['password'] = this.password;
-    data['rememberMe'] = this.rememberMe;
     return data;
   }
 }

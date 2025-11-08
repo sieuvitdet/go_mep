@@ -94,16 +94,16 @@ class _GoMepLoadingDialogState extends State<GoMepLoadingDialog>
                         vertical: AppSizes.semiRegular,
                         horizontal: AppSizes.regular * 2),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.white.withValues(alpha: 0.2), AppColors.white.withValues(alpha: 0.2)],
-                      ),
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(AppSizes.semiRegular),
-                      // border: Border.all(
-                      //   color: Colors.white.withValues(alpha: 0.2),
-                      //   width: 1.5,
-                      // ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: Offset(0, 10),
+                        ),
+                      ],
+                      
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

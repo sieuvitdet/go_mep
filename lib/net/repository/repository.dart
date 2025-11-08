@@ -1,15 +1,14 @@
 import 'package:go_mep_application/data/model/req/login_req_model.dart';
+import 'package:go_mep_application/data/model/req/register_req_model.dart';
+import 'package:go_mep_application/data/model/req/update_profile_req_model.dart';
+import 'package:go_mep_application/data/model/req/places_search_req_model.dart';
 import 'package:go_mep_application/data/model/req/refresh_token_req_model.dart';
 import 'package:go_mep_application/data/model/req/change_password_req_model.dart';
 import 'package:go_mep_application/data/model/req/reset_password_request_req_model.dart';
 import 'package:go_mep_application/data/model/req/reset_password_req_model.dart';
 import 'package:go_mep_application/data/model/req/notification_req_model.dart';
-import 'package:go_mep_application/data/model/req/geocoding_req_model.dart';
-import 'package:go_mep_application/data/model/res/test_encrypt_res_model.dart';
-import 'package:go_mep_application/net/http/http_connection.dart';
 import 'package:go_mep_application/net/api/api.dart';
 import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class Repository {
@@ -18,6 +17,15 @@ class Repository {
       Interaction(
               context: context,
               url: API.login(),
+              param: model.toJson(),
+              showError: true)
+          .post();
+
+  static register(BuildContext context, RegisterReqModel model,
+          {bool showError = false}) =>
+      Interaction(
+              context: context,
+              url: API.register(),
               param: model.toJson(),
               showError: true)
           .post();
@@ -40,29 +48,10 @@ class Repository {
               showError: true)
           .post();
 
-  static requestResetPassword(
-          BuildContext context, ResetPasswordRequestReqModel model,
-          {bool showError = false}) =>
-      Interaction(
-              context: context,
-              url: API.requestResetPassword(),
-              param: model.toJson(),
-              showError: true)
-          .post();
 
   static logout(BuildContext context, {bool showError = false}) => Interaction(
           context: context, url: API.logout(), param: {}, showError: true)
       .post();
-
-  static accountCheck(BuildContext context, String username,
-          {bool showError = false}) =>
-      Interaction(
-              context: context,
-              url:
-                  "/api/auth/account-check?username=$username&${API.apiVersion}",
-              param: null,
-              showError: true)
-          .post();
 
   static resetPassword(BuildContext context, ResetPasswordReqModel model,
           {bool showError = false}) =>
@@ -86,6 +75,15 @@ class Repository {
               context: context, url: API.userMe(), param: {}, showError: false)
           .get();
 
+  static updateProfile(BuildContext context, UpdateProfileReqModel model,
+          {bool showError = false}) =>
+      Interaction(
+              context: context,
+              url: API.updateProfile(),
+              param: model.toJson(),
+              showError: true)
+          .put();
+
   static getNotifications(BuildContext context, NotificationReqModel model,
           {bool showError = false}) =>
       Interaction(
@@ -96,93 +94,30 @@ class Repository {
               showError: showError)
           .get();
 
-  static getGeocodingReverse(BuildContext context, GeocodingReqModel model,
+  static searchPlaces(BuildContext context, PlacesSearchReqModel model,
           {bool showError = false}) =>
       Interaction(
               context: context,
-              url: API.geocodingReverse(model),
-              showError: showError)
-          .get();
-
-  static bulkUploadAttachments(
-          BuildContext context, List<MultipartFileModel> files,
-          {bool showError = false, int expiryInSeconds = 3600}) =>
-      Interaction(
-              context: context,
-              url: API.bulkUploadAttachments(expiryInSeconds: expiryInSeconds),
-              param: {},
-              files: files,
+              url: API.placesSearch(),
+              param: model.toJson(),
               showError: showError)
           .post();
 
-  static getVehicleDetail(BuildContext context, String vehicleId,
+  static requestResetPassword(BuildContext context, ResetPasswordRequestReqModel model,
           {bool showError = false}) =>
       Interaction(
               context: context,
-              url: API.vehicleDetail(vehicleId),
-              param: {},
-              showError: showError)
-          .get();
-
-  static testEncrypt(BuildContext context, String password,
-          {bool showError = false}) =>
-      _TestEncryptInteraction(
-              context: context,
-              password: password,
-              showError: false)
+              url: API.requestResetPassword(),
+              param: model.toJson(),
+              showError: true)
           .post();
-}
 
-class _TestEncryptInteraction extends Interaction {
-  final String password;
-
-  _TestEncryptInteraction({
-    required BuildContext context,
-    required this.password,
-    bool showError = false,
-  }) : super(
-          context: context,
-          url: API.testEncrypt(),
-          param: null,
-          showError: showError,
-        );
-
-  @override
-  Map<String, dynamic>? get bodyParam => null;
-
-  // Override to send raw string instead of JSON object
-  @override
-  Future<ResponseModel> post() async {
-    try {
-      final dio = Dio();
-      Map<String, String> headers = {
-        'Content-Type': 'application/json-patch+json',
-        'Accept': '*/*',
-      };
-
-      final response = await dio.post(
-        baseUrl! + apiUrl,
-        data: '"$password"',
-        options: Options(headers: headers),
-      );
-
-      TestEncryptResModel testEncryptResModel = TestEncryptResModel.fromJson(response.data);
-
-      return ResponseModel(
-        result: testEncryptResModel.toJson(),
-        success: true,
-        statusCode: response.statusCode,
-        isAcknowledge: testEncryptResModel.isAcknowledge,
-        errors: testEncryptResModel.errors,
-      );
-    } catch (e) {
-      return ResponseModel(
-        result: null,
-        success: false,
-        statusCode: 400,
-        isAcknowledge: false,
-        errors: null,
-      );
-    }
-  }
+  static verifyResetPassword(BuildContext context, OtpVerifyReqModel model,
+          {bool showError = false}) =>
+      Interaction(
+              context: context,
+              url: API.verifyResetPassword(),
+              param: model.toJson(),
+              showError: true)
+          .post();
 }

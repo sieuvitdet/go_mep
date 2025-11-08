@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
+import 'package:go_mep_application/common/theme/assets.dart';
+import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/presentation/auth/register/bloc/register_controller.dart';
 
 class RegisterPasswordScreen extends StatelessWidget {
@@ -35,74 +36,30 @@ class RegisterPasswordScreen extends StatelessWidget {
           stream2: controller.showPasswordStream,
           initialData2: false,
           builder: (_, errorSnapshot, showSnapshot) {
-            return Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: errorSnapshot != null
-                    ? Border.all(color: AppColors.red, width: 1)
-                    : null,
-              ),
-              child: TextField(
-                controller: controller.passwordController,
-                focusNode: controller.passwordFocusNode,
-                obscureText: showSnapshot == false,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF616161),
-                  fontFamily: 'Roboto Condensed',
-                  fontWeight: FontWeight.w500,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Nhập mật khẩu',
-                  hintStyle: const TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF616161),
-                    fontFamily: 'Roboto Condensed',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: SvgPicture.asset(
-                      showSnapshot
-                          ? 'assets/figma/ic_eye_filled.svg'
-                          : 'assets/figma/ic_eye_outline.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                    onPressed: controller.toggleShowPassword,
-                  ),
-                ),
+            return CustomTextField(
+              maxLines: 1,
+              controller: controller.passwordController,
+              focusNode: controller.passwordFocusNode,
+              hintText: 'Nhập mật khẩu',
+              errorMessage: errorSnapshot,
+              backgroundColor: errorSnapshot == null
+                  ? Colors.white
+                  : AppColors.red.withValues(alpha: 0.1),
+              borDerColor: errorSnapshot == null
+                  ? AppColors.grey
+                  : AppColors.red,
+              suffixIcon: showSnapshot == false ? Assets.icEyeOff : Assets.icEye,
+              suffixIconColor: AppColors.hint,
+              onSuffixIconTap: controller.toggleShowPassword,
+              obscureText: showSnapshot == false,
+              suffixIconSize: 24,
+              textInputColor: const Color(0xFF616161),
+              fontSizeHint: 16,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
               ),
             );
-          },
-        ),
-        StreamBuilder<String?>(
-          stream: controller.passwordErrorStream,
-          builder: (context, snapshot) {
-            if (snapshot.data != null) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8, left: 4),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    snapshot.data!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.red,
-                      fontFamily: 'Roboto Condensed',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
           },
         ),
         const SizedBox(height: 16),
@@ -113,74 +70,30 @@ class RegisterPasswordScreen extends StatelessWidget {
           stream2: controller.showConfirmPasswordStream,
           initialData2: false,
           builder: (_, errorSnapshot, showSnapshot) {
-            return Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4),
-                border: errorSnapshot != null
-                    ? Border.all(color: AppColors.red, width: 1)
-                    : null,
-              ),
-              child: TextField(
-                controller: controller.confirmPasswordController,
-                focusNode: controller.confirmPasswordFocusNode,
-                obscureText: showSnapshot == false,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF616161),
-                  fontFamily: 'Roboto Condensed',
-                  fontWeight: FontWeight.w500,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Nhập lại mật khẩu',
-                  hintStyle: const TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF616161),
-                    fontFamily: 'Roboto Condensed',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: SvgPicture.asset(
-                      showSnapshot
-                          ? 'assets/figma/ic_eye_filled.svg'
-                          : 'assets/figma/ic_eye_outline.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                    onPressed: controller.toggleShowConfirmPassword,
-                  ),
-                ),
+            return CustomTextField(
+              maxLines: 1,
+              controller: controller.confirmPasswordController,
+              focusNode: controller.confirmPasswordFocusNode,
+              hintText: 'Nhập lại mật khẩu',
+              errorMessage: errorSnapshot,
+              backgroundColor: errorSnapshot == null
+                  ? Colors.white
+                  : AppColors.red.withValues(alpha: 0.1),
+              borDerColor: errorSnapshot == null
+                  ? AppColors.grey
+                  : AppColors.red,
+              suffixIcon: showSnapshot == false ? Assets.icEyeOff : Assets.icEye,
+              suffixIconColor: AppColors.hint,
+              onSuffixIconTap: controller.toggleShowConfirmPassword,
+              obscureText: showSnapshot == false,
+              suffixIconSize: 24,
+              textInputColor: const Color(0xFF616161),
+              fontSizeHint: 16,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
               ),
             );
-          },
-        ),
-        StreamBuilder<String?>(
-          stream: controller.confirmPasswordErrorStream,
-          builder: (context, snapshot) {
-            if (snapshot.data != null) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8, left: 4),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    snapshot.data!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.red,
-                      fontFamily: 'Roboto Condensed',
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
           },
         ),
         const SizedBox(height: 16),

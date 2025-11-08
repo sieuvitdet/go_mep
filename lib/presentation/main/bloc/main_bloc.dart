@@ -1,5 +1,8 @@
 import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/data/model/res/user_me_res_model.dart';
+import 'package:go_mep_application/net/api/interaction.dart';
+import 'package:go_mep_application/net/repository/repository.dart';
+import 'package:go_mep_application/net/http/http_connection.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -20,27 +23,30 @@ class MainBloc {
   Future<void> getUserInfo() async {
     streamIsLoading.add(true);
 
-    UserMeResModel user = UserMeResModel(
-      address: "15/02 Công Quỳnh phường Nguyễn Cư Trinh\nQuận 1 Thành phố Hồ Chí Minh",
-      phoneNumber: "0778393935",
-      fullName: "Anh tên Long, xăm cc trên mông",
-      birthday: "09-03-1983",
-      gender: "Nữ",
-      email: "leovu@gmail.com",
-      username: "longvu",
-      id: "1234567890",
-      note: "Tôi là một người yêu thích các hoạt động ngoại khóa và thể thao.");
-    streamUserInfo.add(user);
-    Globals.userMeResModel = user;
+    try {
+      ResponseModel responseModel = await Repository.getUserMe(context);
+      UserMeResModel userMeResModel = UserMeResModel(
+        id: 1,
+        hashId: "1",
+        phoneNumber: "03456987189",
+        fullName: "Duc Tran",
+        dateOfBirth: "1990-01-01",
+        address: "100 P. Đông Các, Đống Đa, Đống Đa, Hà Nội",
+        userType: "user",
+        isActive: true,
+        isSuperuser: false,
+      );
+      streamUserInfo.add(userMeResModel);
+      Globals.userMeResModel = userMeResModel;
 
-    // ResponseModel responseModel = await Repository.getUserMe(context);
-
-    // if (responseModel.success ?? false) {
-    //   UserMeResModel userMeResModel =
-    //       UserMeResModel.fromJson(responseModel.result ?? {});
-    //   streamUserInfo.add(userMeResModel);
-    //   Globals.userMeResModel = userMeResModel;
-    // }
+      // if (responseModel.success ?? false) {
+      //   UserMeResModel userMeResModel =
+      //       UserMeResModel.fromJson(responseModel.result ?? {});
+      //   streamUserInfo.add(userMeResModel);
+      //   Globals.userMeResModel = userMeResModel;
+      // }
+    } catch (e) {
+    }
 
     streamIsLoading.add(false);
   }

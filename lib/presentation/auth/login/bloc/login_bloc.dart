@@ -1,11 +1,17 @@
 
+import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
-import 'package:go_mep_application/data/model/res/test_encrypt_res_model.dart';
+import 'package:go_mep_application/common/widgets/dialogs/gomep_loading_dialog.dart';
+import 'package:go_mep_application/data/local/local/shared_prefs/shared_prefs_key.dart';
+import 'package:go_mep_application/data/model/req/login_req_model.dart';
 import 'package:go_mep_application/net/api/interaction.dart';
 import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:go_mep_application/presentation/auth/change_password/ui/change_password_screen.dart';
+import 'package:go_mep_application/presentation/auth/request_reset_password_phone/ui/request_reset_password_mail_screen.dart';
+import 'package:go_mep_application/presentation/auth/reset_password/ui/reset_password_screen.dart';
 import 'package:go_mep_application/presentation/main/ui/main_screen.dart';
 import 'package:go_mep_application/presentation/auth/register/ui/register_screen.dart';
 import 'package:rxdart/rxdart.dart';
@@ -71,37 +77,42 @@ class LoginBloc {
     streamObscureText.close();
   }
 
-  onGetEncryptedPassword() async {
+  onLogin() async {
+    //  CustomNavigator.push(context, MainScreen());
     try {
+      final phoneNumber = userNameController.text.trim();
       final password = passwordController.text.trim();
-      if (password.isEmpty) {
-        Utility.toast("Vui lòng nhập mật khẩu");
-        return null;
+      
+      if (phoneNumber.isEmpty || password.isEmpty) {
+        Utility.toast('Vui lòng nhập đầy đủ thông tin đăng nhập');
+        return;
       }
+      GoMepLoadingDialog.show(context);
+      await Future.delayed(const Duration(seconds: 3));
 
-      ResponseModel responseModel = await Repository.testEncrypt(
-        context,
-        password,
-        showError: false,
+      final loginModel = LoginReqModel(
+        phoneNumber: phoneNumber,
+        password: password,
       );
 
-      if (responseModel.success == true) {
-        TestEncryptResModel encryptResponse = 
-            TestEncryptResModel.fromJson(responseModel.result ?? {});
-        return encryptResponse.result ?? "";
-      } else {
-        return "";
-      }
+      ResponseModel responseModel = await Repository.login(context, loginModel);
+
+      GoMepLoadingDialog.hide(context);
+      Globals.prefs.setString(SharedPrefsKey.token, "test");
+       CustomNavigator.push(context, MainScreen());
+
+      // if (responseModel.success ?? false) {
+      //   Globals.prefs.setString(SharedPrefsKey.token, responseModel.result?['access_token'] ?? '');
+
+      //   CustomNavigator.push(context, MainScreen());
+      // } 
     } catch (e) {
-      return "";
+      Utility.toast('Đã có lỗi xảy ra, vui lòng thử lại');
     }
   }
 
-  onLogin() async {
-    CustomNavigator.push(context, MainScreen());
-  }
-
   onForgotPassword() async {
+    CustomNavigator.push(context,  RequestResetPasswordPhoneScreen());
   }
 
   onRegister() {

@@ -217,26 +217,16 @@ class _CustomAcceptanceRejectDialogState
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.borderTextField),
-                  borderRadius: BorderRadius.circular(AppSizes.small),
-                ),
-                child: TextField(
-                  controller: _controller,
-                  maxLines: 2,
-                  maxLength: null,
-                  decoration: InputDecoration(
-                    hintText: widget.hintText ?? "Nhập lí do từ chối",
-                    hintStyle: TextStyle(
-                      color: AppColors.hint,
-                      fontSize: AppTextSizes.body,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(AppSizes.regular),
-                    counterText: '',
-                  ),
-                ),
+              CustomTextField(
+                controller: _controller,
+                maxLines: 2,
+                hintText: widget.hintText ?? "Nhập lí do từ chối",
+                backgroundColor: AppColors.white,
+                borDerColor: AppColors.borderTextField,
+                textInputColor: AppColors.black,
+                fontSizeHint: AppTextSizes.body,
+                contentPadding: EdgeInsets.all(AppSizes.regular),
+                counterText: '',
               ),
               SizedBox(height: AppSizes.extraSmall),
               Align(

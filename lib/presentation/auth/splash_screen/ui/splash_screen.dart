@@ -69,18 +69,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
     String deviceId = await Utility.getDeviceId();
     Globals.prefs.setString(SharedPrefsKey.device_id, deviceId);
-    bool is_require_password_change =
-        Globals.prefs.getBool(SharedPrefsKey.is_require_password_change);
-    if (is_require_password_change) {
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ChangePasswordScreen(isChangePasswordFirstTime: true)));
-      });
-    } else {
-      if (Globals.prefs.getString(SharedPrefsKey.token) != "") {
+    if (Globals.prefs.getString(SharedPrefsKey.token) != "") {
         Future.delayed(const Duration(seconds: 2), () {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => MainScreen()));
@@ -90,7 +79,6 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => StartScreen()));
         });
-      }
       }
     });
   }

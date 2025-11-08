@@ -330,8 +330,12 @@ abstract class HttpConnection<T> {
         String errorMessage = "";
         try {
           if (e.response?.data is Map) {
+            // Check for standard API response message field first
+            if (e.response?.data["message"] != null) {
+              errorMessage = e.response?.data["message"]?.toString() ?? "";
+            }
             // Check for the new error structure
-            if (e.response?.data["errors"] != null &&
+            else if (e.response?.data["errors"] != null &&
                 e.response?.data["errors"]["globalError"] != null) {
               errorMessage =
                   e.response?.data["errors"]["globalError"]["message"] ?? "";

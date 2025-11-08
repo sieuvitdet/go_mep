@@ -81,56 +81,35 @@ class _MapScreenState extends State<MapScreen> {
                     // Search Input
                     Row(children: [
                       Expanded(
-                        child: Container(
+                        child: SizedBox(
                           height: 48,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1A1A1A),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: _searchController,
-                                  style: TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    hintText: 'Tìm kiếm',
-                                    hintStyle: TextStyle(color: AppColors.hint),
-                                    border: InputBorder.none,
-                                    fillColor: const Color(0xFF1A1A1A),
-                                    suffixIcon:  state.isSearching &&
-                                  _searchController.text.isNotEmpty ? InkWell(
-                                    onTap: () {
-                                      _searchController.clear();
-                                      _mapBloc.onSearchQueryChanged('');
-                                    },
-                                    child: Icon(Icons.clear,
-                                      color: Colors.white54, size: 20,),
-                                  ) : null,
-                                    suffixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 30),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                                  ),
-                                  onChanged: (value) {
-                                    _mapBloc.onSearchQueryChanged(value);
-                                  },
-                                  onSubmitted: (value) {
-                                    _mapBloc.onSearchQueryChanged(value);
-                                  },
-                                ),
-                              ),
-                                IconButton(
-                                  icon: const Icon(Icons.search,
-                                      color: Colors.white, size: 20),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _mapBloc.onSearchQueryChanged('');
-                                  },
-                                ),
-                            ],
+                          child: CustomTextField(
+                            controller: _searchController,
+                            hintText: 'Tìm kiếm',
+                            textInputColor: Colors.white,
+                            backgroundColor: const Color(0xFF1A1A1A),
+                            borDerColor: Colors.transparent,
+                            maxLines: 1,
+                            suffixIconWidget: state.isSearching &&
+                            _searchController.text.isNotEmpty ? InkWell(
+                              onTap: () {
+                                _searchController.clear();
+                                _mapBloc.onSearchQueryChanged('');
+                              },
+                              child: Icon(Icons.clear,
+                                color: Colors.white54, size: 20,),
+                            ) : null,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            onChanged: (value) {
+                              _mapBloc.onSearchQueryChanged(value);
+                            },
+                            onSubmitted: (value) {
+                              _mapBloc.onSearchQueryChanged(value);
+                            },
                           ),
                         ),
                       ),
-                      Gaps.vGap16,
+                      Gaps.hGap16,
                       InkWell(
                         onTap: () => CustomNavigator.push(context, NotificationScreen()),
                         child: Container(

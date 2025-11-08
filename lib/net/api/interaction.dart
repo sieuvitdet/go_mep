@@ -377,10 +377,17 @@ class ResponseModel {
       message = json['errors']['globalError']['message'].toString();
     }
 
-    // Handle result/results
+    // Handle result/results - Map 'data' field to 'result'
     result = null;
     results = null;
-    if (json['result'] != null) {
+    if (json['data'] != null) {
+      if (json['data'] is Map<String, dynamic>) {
+        result = json['data'];
+      } else if (json['data'] is List<dynamic>) {
+        results = json['data'];
+      }
+    } else if (json['result'] != null) {
+      // Fallback to old 'result' field for backward compatibility
       if (json['result'] is Map<String, dynamic>) {
         result = json['result'];
       } else if (json['result'] is List<dynamic>) {
@@ -388,9 +395,9 @@ class ResponseModel {
       }
     }
 
-    // Handle status code and success
+    // Handle status code and success - Use 'success' field directly
     statusCode = json['statusCode'];
-    success = HttpStatusCode.success.contains(statusCode);
+    success = json['success'] ?? HttpStatusCode.success.contains(statusCode);
     isAcknowledge = json['isAcknowledge'];
 
     // Handle errors
@@ -401,8 +408,10 @@ class ResponseModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'result': result ?? results,
+      'data': result ?? results,
+      'result': result ?? results, // Keep for backward compatibility
       'message': message,
+      'success': success,
       'statusCode': statusCode,
       'isAcknowledge': isAcknowledge,
       'errors': errors?.toJson(),

@@ -18,23 +18,24 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
-  late AccountController _accountController;
+  late AccountBloc _accountBloc;
 
   @override
   void initState() {
     super.initState();
-    _accountController = AccountController();
+    _accountBloc = AccountBloc(context);
     widget.mainBloc.getUserInfo();
   }
 
   @override
   void dispose() {
-    _accountController.dispose();
+    _accountBloc.dispose();
     super.dispose();
   }
 
-  void _navigateToEditProfile(UserMeResModel user) {
-    CustomNavigator.push(context, AccountDetailScreen(user: user));
+  void _navigateToEditProfile(UserMeResModel user) async {
+    await CustomNavigator.push(context, AccountDetailScreen(user: user, accountBloc: _accountBloc));
+    widget.mainBloc.getUserInfo();
   }
 
   @override
@@ -134,7 +135,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   }
 
                   final user = snapshot.data!;
-                  _accountController.setUserInfo(user);
+                  _accountBloc.setUserInfo(user);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -163,25 +164,11 @@ class _AccountScreenState extends State<AccountScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  child: ClipOval(
-                                    child: user.avatar != null && user.avatar!.isNotEmpty
-                                        ? Image.network(
-                                            user.avatar!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              return Icon(
-                                                Icons.person,
-                                                color: AppColors.getTextColor(context),
-                                                size: 32,
-                                              );
-                                            },
-                                          )
-                                        : Icon(
+                                  child: Icon(
                                             Icons.person,
                                             color: AppColors.getTextColor(context),
                                             size: 32,
                                           ),
-                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 // User Info
@@ -236,7 +223,7 @@ class _AccountScreenState extends State<AccountScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => Dialog(
-        backgroundColor: Colors.black,
+        backgroundColor: AppColors.getBackgroundCard(context),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -293,7 +280,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(dialogContext).pop();
-                        _accountController.onLogOut(context);
+                        _accountBloc.onLogOut(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.red,
@@ -309,6 +296,7 @@ class _AccountScreenState extends State<AccountScreen> {
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Roboto Condensed',
+                          color: AppColors.white,
                         ),
                       ),
                     ),

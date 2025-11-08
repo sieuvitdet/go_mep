@@ -104,6 +104,13 @@ class Utility {
     return _emailRegExp.hasMatch(value);
   }
 
+  static bool isPhoneNumber(String? value) {
+    if (value == null || value.isEmpty) return false;
+    final RegExp vietnamPhoneRegExp =
+        RegExp(r'^(?:\+84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])\d{7}$');
+    return vietnamPhoneRegExp.hasMatch(value);
+  }
+
   static bool isPassword(String? value) {
     if (value == null || value.isEmpty) return false;
 

@@ -1,4 +1,5 @@
 import 'package:go_mep_application/common/theme/app_colors.dart';
+import 'package:go_mep_application/common/theme/assets.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/presentation/auth/change_password/bloc/change_password_bloc.dart';
 import 'package:flutter/material.dart';
@@ -143,63 +144,39 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     required Function(String) onChanged,
     int? maxLength,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.getBackgroundCard(context),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.lock_outline,
-                color: AppColors.getTextColor(context),
-                size: 24,
-              ),
-              Gaps.hGap16,
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  onChanged: onChanged,
-                  obscureText: !isPasswordVisible,
-                  maxLength: maxLength,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.getTextColor(context),
-                    fontWeight: FontWeight.w400,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hintText,
-                    hintStyle: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.hint,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    border: InputBorder.none,
-                    counterText: '',
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return CustomTextField(
+      maxLines: 1,
+      maxLength: maxLength,
+      controller: controller,
+      focusNode: focusNode,
+      hintText: hintText,
+      errorMessage: errorMessage,
+      onChanged: onChanged,
+      backgroundColor: errorMessage == null
+          ? AppColors.getBackgroundCard(context)
+          : AppColors.red.withValues(alpha: 0.1),
+      borDerColor: errorMessage == null
+          ? AppColors.getTextColor(context).withOpacity(0.3)
+          : AppColors.red,
+      suffixIcon: isPasswordVisible == false ? Assets.icEyeOff : Assets.icEye,
+      suffixIconColor: AppColors.hint,
+      onSuffixIconTap: onShowPassword,
+      obscureText: isPasswordVisible == false,
+      suffixIconSize: 24,
+      textInputColor: AppColors.getTextColor(context),
+      prefixIconWidget: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        child: Icon(
+          Icons.lock_outline,
+          color: AppColors.getTextColor(context),
+          size: 24,
         ),
-        if (errorMessage != null) ...[
-          SizedBox(height: 8),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: CustomText(
-              text: errorMessage,
-              fontSize: 12,
-              color: AppColors.error,
-            ),
-          ),
-        ],
-      ],
+      ),
+      prefixIconConstraints: BoxConstraints(
+        minWidth: 56,
+        minHeight: 24,
+      ),
+      counterText: '',
     );
   }
 }

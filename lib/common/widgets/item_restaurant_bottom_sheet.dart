@@ -10,10 +10,7 @@ class ItemRestaurantBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScaffold(
-      backgroundColor: Colors.transparent,
-      isBottomSheet: true,
-      body: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -262,6 +259,9 @@ class ItemRestaurantBottomSheet extends StatelessWidget {
                     ),
             
                       Gaps.vGap24,
+                      Container(
+                        height: MediaQuery.of(context).padding.bottom,
+                      ),
                     ],
                   ),
                 ),
@@ -269,8 +269,7 @@ class ItemRestaurantBottomSheet extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 
 

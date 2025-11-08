@@ -1,6 +1,7 @@
 import 'package:go_mep_application/common/lang_key/lang_key.dart';
 import 'package:go_mep_application/common/localization/app_localizations.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
+import 'package:go_mep_application/common/theme/assets.dart';
 import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/data/local/local/shared_prefs/shared_prefs_key.dart';
@@ -64,41 +65,23 @@ class _LoginScreenState extends State<LoginScreen> {
               stream: _bloc.streamErrorUserName.output,
               initialData: null,
               builder: (_, snapshot) {
-                return Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.getTextFieldBackground(context),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: snapshot.data == null
-                          ? AppColors.greyLight
-                          : AppColors.red,
-                      width: 1,
-                    ),
-                  ),
-                  child: TextField(
-                    controller: _bloc.userNameController,
-                    onChanged: (value) => _bloc.validateEnableLogin(),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.getTextFieldTextColor(context),
-                      fontFamily: 'Roboto Condensed',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.text(LangKey.username),
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textFieldPlaceholder,
-                        fontFamily: 'Roboto Condensed',
-                        fontWeight: FontWeight.w500,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                    ),
+                return CustomTextField(
+                  maxLines: 1,
+                  controller: _bloc.userNameController,
+                  hintText: AppLocalizations.text(LangKey.username),
+                  errorMessage: snapshot.data,
+                  onChanged: (value) => _bloc.validateEnableLogin(),
+                  backgroundColor: snapshot.data == null
+                      ? AppColors.getTextFieldBackground(context)
+                      : AppColors.red.withValues(alpha: 0.1),
+                  borDerColor: snapshot.data == null
+                      ? AppColors.greyLight
+                      : AppColors.red,
+                  textInputColor: AppColors.getTextFieldTextColor(context),
+                  fontSizeHint: 16,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
                   ),
                 );
               },
@@ -111,54 +94,28 @@ class _LoginScreenState extends State<LoginScreen> {
               stream2: _bloc.streamShowPassword.output,
               initialData2: false,
               builder: (_, snapshot1, snapshot2) {
-                return Container(
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.getTextFieldBackground(context),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: snapshot1 == null
-                          ? AppColors.greyLight
-                          : AppColors.red,
-                      width: 1,
-                    ),
-                  ),
-                  child: TextField(
-                    controller: _bloc.passwordController,
-                    onChanged: (value) => _bloc.validateEnableLogin(),
-                    obscureText: snapshot2 == false,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.getTextFieldTextColor(context),
-                      fontFamily: 'Roboto Condensed',
-                      fontWeight: FontWeight.w500,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: AppLocalizations.text(LangKey.password),
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textFieldPlaceholder,
-                        fontFamily: 'Roboto Condensed',
-                        fontWeight: FontWeight.w500,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: SvgPicture.asset(
-                          'assets/figma/eye_icon.svg',
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                            AppColors.getTextFieldTextColor(context),
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        onPressed: () => _bloc.onShowPassword(),
-                      ),
-                    ),
+                return CustomTextField(
+                  maxLines: 1,
+                  controller: _bloc.passwordController,
+                  hintText: AppLocalizations.text(LangKey.password),
+                  errorMessage: snapshot1,
+                  onChanged: (value) => _bloc.validateEnableLogin(),
+                  backgroundColor: snapshot1 == null
+                      ? AppColors.getTextFieldBackground(context)
+                      : AppColors.red.withValues(alpha: 0.1),
+                  borDerColor: snapshot1 == null
+                      ? AppColors.greyLight
+                      : AppColors.red,
+                  suffixIcon: snapshot2 == false ? Assets.icEyeOff : Assets.icEye,
+                  suffixIconColor: AppColors.hint,
+                  onSuffixIconTap: () => _bloc.onShowPassword(),
+                  obscureText: snapshot2 == false,
+                  suffixIconSize: 24,
+                  textInputColor: AppColors.getTextFieldTextColor(context),
+                  fontSizeHint: 16,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
                   ),
                 );
               },

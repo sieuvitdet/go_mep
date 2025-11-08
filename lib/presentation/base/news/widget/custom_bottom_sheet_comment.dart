@@ -157,7 +157,7 @@ class _CustomBottomSheetCommentState extends State<CustomBottomSheetComment> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: AppColors.getBackgroundCard(context),
+        color: AppColors.getBackgroundItemComment(context),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,17 +286,12 @@ class _CustomBottomSheetCommentState extends State<CustomBottomSheetComment> {
                 if (isEditing)
                   Column(
                     children: [
-                      TextField(
+                      CustomTextField(
                         controller: _editController,
-                        style: TextStyle(color: AppColors.getTextColor(context)),
-                        decoration: InputDecoration(
-                          hintText: 'Chỉnh sửa bình luận...',
-                          hintStyle: TextStyle(color: AppColors.hint),
-                          border: OutlineInputBorder(),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.gradientEnd),
-                          ),
-                        ),
+                        hintText: 'Chỉnh sửa bình luận...',
+                        textInputColor: AppColors.getTextColor(context),
+                        backgroundColor: AppColors.getBackgroundCard(context),
+                        borDerColor: AppColors.getTextColor(context).withOpacity(0.3),
                         maxLines: null,
                       ),
                       const SizedBox(height: 8),
@@ -351,12 +346,14 @@ class _CustomBottomSheetCommentState extends State<CustomBottomSheetComment> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Container(
-            height: AppSizes.screenSize(context).height * 0.3,
+            height:  AppSizes.screenSize(context).height * 0.3,
           ),
           Flexible(
             child: Container(
@@ -462,8 +459,9 @@ class _CustomBottomSheetCommentState extends State<CustomBottomSheetComment> {
                             currentNews.comments.reversed.toList();
 
                         return ListView.builder(
-                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: reversedComments.length,
+                          padding: EdgeInsets.only(bottom: 8),
                           itemBuilder: (context, index) {
                             return _buildCommentItem(reversedComments[index]);
                           },
@@ -472,69 +470,60 @@ class _CustomBottomSheetCommentState extends State<CustomBottomSheetComment> {
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: 24 + keyboardHeight,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.getBackgroundCard(context),
                       border: Border(
                         top: BorderSide(color: AppColors.getDividerColor(context), width: 1),
                       ),
                     ),
-                    child: SafeArea(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.getDividerColor(context), width: 1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: TextField(
-                                controller: _commentController,
-                                style: TextStyle(color: AppColors.getTextColor(context)),
-                                decoration: InputDecoration(
-                                  hintText: 'Viết bình luận...',
-                                  hintStyle: TextStyle(color: AppColors.hint),
-                                  filled: true,
-                                  fillColor: AppColors.getBackgroundCard(context),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 10,
-                                  ),
-                                ),
-                              ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            controller: _commentController,
+                            hintText: 'Viết bình luận...',
+                            textInputColor: AppColors.getTextColor(context),
+                            backgroundColor: AppColors.getBackgroundCard(context),
+                            borDerColor: AppColors.getDividerColor(context),
+                            maxLines: 1,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
                             ),
                           ),
-                          SizedBox(width: 8),
-                          IconButton(
-                            onPressed: () {
-                              if (_commentController.text.isNotEmpty) {
-                                widget.newsController.addComment(
-                                  newsId: widget.news.id,
-                                  content: _commentController.text,
-                                  currentUserId: widget.currentUserId,
-                                  currentUserName: widget.currentUserName,
-                                );
-                                _commentController.clear();
-                              }
-                            },
-                            icon: Container(
-                              decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFF5691FF), Color(0xFFDE50D0)],
-                                ),
-                                shape: BoxShape.circle,
+                        ),
+                        SizedBox(width: 8),
+                        IconButton(
+                          onPressed: () {
+                            if (_commentController.text.isNotEmpty) {
+                              widget.newsController.addComment(
+                                newsId: widget.news.id,
+                                content: _commentController.text,
+                                currentUserId: widget.currentUserId,
+                                currentUserName: widget.currentUserName,
+                              );
+                              _commentController.clear();
+                            }
+                          },
+                          icon: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xFF5691FF), Color(0xFFDE50D0)],
                               ),
-                              padding: const EdgeInsets.all(8),
-                              child: const Icon(Icons.send,
-                                  color: Colors.white, size: 20),
+                              shape: BoxShape.circle,
                             ),
+                            padding: const EdgeInsets.all(8),
+                            child: const Icon(Icons.send,
+                                color: Colors.white, size: 20),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

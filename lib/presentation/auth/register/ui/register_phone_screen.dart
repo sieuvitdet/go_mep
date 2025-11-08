@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
+import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/presentation/auth/register/bloc/register_controller.dart';
 
 class RegisterPhoneScreen extends StatelessWidget {
@@ -34,57 +35,25 @@ class RegisterPhoneScreen extends StatelessWidget {
             stream: controller.phoneErrorStream,
             initialData: null,
             builder: (_, snapshot) {
-              final hasError = snapshot.data != null;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: hasError ? AppColors.red : AppColors.grey, width: 1),
-                    ),
-                    child: TextField(
-                      controller: controller.phoneController,
-                      focusNode: controller.phoneFocusNode,
-                      keyboardType: TextInputType.phone,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Color(0xFF616161),
-                        fontFamily: 'Roboto Condensed',
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: 'Nhập số điện thoại',
-                        hintStyle: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF616161),
-                          fontFamily: 'Roboto Condensed',
-                          fontWeight: FontWeight.w500,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (hasError)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8, left: 4),
-                      child: Text(
-                        snapshot.data!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.red,
-                          fontFamily: 'Roboto Condensed',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
+              return CustomTextField(
+                maxLines: 1,
+                controller: controller.phoneController,
+                focusNode: controller.phoneFocusNode,
+                hintText: 'Nhập số điện thoại',
+                errorMessage: snapshot.data,
+                textInputType: TextInputType.phone,
+                backgroundColor: snapshot.data == null
+                    ? Colors.white
+                    : AppColors.red.withValues(alpha: 0.1),
+                borDerColor: snapshot.data == null
+                    ? AppColors.grey
+                    : AppColors.red,
+                textInputColor: const Color(0xFF616161),
+                fontSizeHint: 16,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
               );
             },
           ),

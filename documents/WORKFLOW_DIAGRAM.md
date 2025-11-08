@@ -826,6 +826,172 @@ Throughout all 10 steps, the following principles are maintained:
 
 ---
 
-**Document Version**: 1.0
-**Last Updated**: 2025-10-20
-**Status**: Active Development
+## API Mapping Implementation Workflow
+
+### API Development Process Flow
+
+This section documents the specific workflow for implementing API mapping functionality in the GoMep application.
+
+```mermaid
+graph TD
+    A[API Mapping Requirements] --> B[Step 1: User Registration API]
+    B --> C[Step 2: User Login API]
+    C --> D[Step 3: Get User Info API]
+    D --> E[Step 4: User Logout API]
+    E --> F[Step 5: Update Profile API]
+    F --> G[Step 6: Places Search API]
+    G --> H[Complete API Integration]
+
+    %% Step 1 - Registration
+    B --> B1[Create RegisterReqModel]
+    B1 --> B2[Update API.dart endpoints]
+    B2 --> B3[Add Repository.register method]
+    B3 --> B4[Implement in RegisterController]
+    B4 --> B5[Add validation & error handling]
+
+    %% Step 2 - Login
+    C --> C1[Update LoginReqModel mapping]
+    C1 --> C2[Update API.dart endpoints]
+    C2 --> C3[Implement in LoginBloc]
+    C3 --> C4[Add token handling]
+    C4 --> C5[Add navigation logic]
+
+    %% Step 3 - Get User Info
+    D --> D1[Update API.dart endpoints]
+    D1 --> D2[Implement in MainBloc]
+    D2 --> D3[Add stream handling]
+    D3 --> D4[Update AccountScreen UI]
+    D4 --> D5[Add loading states]
+
+    %% Step 4 - Logout
+    E --> E1[Update API.dart endpoints]
+    E1 --> E2[Implement in AccountBloc]
+    E2 --> E3[Add session cleanup]
+    E3 --> E4[Add navigation to login]
+
+    %% Step 5 - Update Profile
+    F --> F1[Create UpdateProfileReqModel]
+    F1 --> F2[Add Repository.updateProfile method]
+    F2 --> F3[Implement in AccountDetailScreen]
+    F3 --> F4[Add edit dialogs]
+    F4 --> F5[Add validation & save logic]
+
+    %% Step 6 - Places Search
+    G --> G1[Create PlacesSearchReqModel]
+    G1 --> G2[Create PlacesSearchResModel]
+    G2 --> G3[Add Repository.searchPlaces method]
+    G3 --> G4[Update MapBloc implementation]
+    G4 --> G5[Add data conversion logic]
+
+    %% Styling
+    classDef startEnd fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef apiStep fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef implementation fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    
+    class A,H startEnd
+    class B,C,D,E,F,G apiStep
+    class B1,B2,B3,B4,B5,C1,C2,C3,C4,C5,D1,D2,D3,D4,D5,E1,E2,E3,E4,F1,F2,F3,F4,F5,G1,G2,G3,G4,G5 implementation
+```
+
+### API Architecture Flow
+
+```mermaid
+graph TB
+    subgraph "Presentation Layer"
+        UI[User Interface]
+        BLOC[BLoC/Controllers]
+    end
+    
+    subgraph "Business Logic"
+        REPO[Repository Layer]
+        API[API Layer]
+    end
+    
+    subgraph "Network Layer"
+        HTTP[HTTP Connection]
+        INT[Interaction Handler]
+    end
+    
+    subgraph "Data Layer"
+        REQ[Request Models]
+        RES[Response Models]
+    end
+    
+    subgraph "External"
+        SERVER[API Server localhost:8000]
+    end
+
+    UI --> BLOC
+    BLOC --> REPO
+    REPO --> API
+    API --> INT
+    INT --> HTTP
+    HTTP --> SERVER
+    
+    REQ --> REPO
+    RES --> BLOC
+    
+    SERVER --> HTTP
+    HTTP --> INT
+    INT --> API
+    API --> REPO
+    REPO --> BLOC
+    BLOC --> UI
+```
+
+### API Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant UI as User Interface
+    participant BL as Business Logic (BLoC)
+    participant RP as Repository
+    participant API as API Layer
+    participant SV as Server (localhost:8000)
+
+    UI->>BL: User Action (Register/Login/etc)
+    BL->>RP: Call Repository Method
+    RP->>API: Format Request with Models
+    API->>SV: HTTP Request (/api/v1/...)
+    SV-->>API: HTTP Response (JSON)
+    API-->>RP: Parse Response to Models
+    RP-->>BL: Return Data/Error
+    BL-->>UI: Update UI State via Streams
+```
+
+### Error Handling Flow for APIs
+
+```mermaid
+graph TD
+    A[API Call] --> B{Network Available?}
+    B -->|No| C[Show Network Error]
+    B -->|Yes| D[Send Request to localhost:8000]
+    D --> E{Response Success?}
+    E -->|Yes| F[Parse Response Model]
+    E -->|No| G{Status Code?}
+    G -->|401| H[Token Expired - Refresh]
+    G -->|400/500| I[Show Error Message]
+    H --> J{Refresh Success?}
+    J -->|Yes| D
+    J -->|No| K[Navigate to Login]
+    F --> L[Update UI via Streams]
+    C --> M[Use Fallback/Mock Data]
+    I --> M
+```
+
+### API Implementation Status
+
+| API Endpoint | Implementation Class | Status | Features |
+|-------------|---------------------|--------|----------|
+| `/api/v1/auth/register` | `register_controller.dart` | ✅ | Complete registration flow |
+| `/api/v1/auth/login` | `login_bloc.dart` | ✅ | Token-based authentication |
+| `/api/v1/auth/me` | `main_bloc.dart` | ✅ | User info fetching & streams |
+| `/api/v1/auth/logout` | `account_bloc.dart` | ✅ | Session cleanup |
+| `/api/v1/auth/update-profile` | `account_detail_screen.dart` | ✅ | Profile editing |
+| `/api/v1/places/search` | `map_bloc.dart` | ✅ | Places search with fallback |
+
+---
+
+**Document Version**: 1.1
+**Last Updated**: 2025-10-23
+**Status**: Active Development - API Mapping Complete
