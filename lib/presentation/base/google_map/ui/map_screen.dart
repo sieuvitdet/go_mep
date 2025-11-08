@@ -139,7 +139,8 @@ class _MapScreenState extends State<MapScreen> {
                     ]),
     
                     // Search Results List
-                    if (state.isSearching && _searchController.text.isNotEmpty)
+                    if (_searchController.text.isNotEmpty &&
+                        (state.isSearching || state.searchResults.isNotEmpty))
                       Padding(
                         padding: EdgeInsets.only(right: 16),
                         child: SearchResultsList(

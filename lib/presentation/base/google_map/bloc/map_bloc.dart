@@ -6,11 +6,6 @@ import 'package:go_mep_application/common/theme/assets.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/gps_utils.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
-import 'package:go_mep_application/data/model/req/places_search_req_model.dart';
-import 'package:go_mep_application/data/model/res/places_search_res_model.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
-import 'package:go_mep_application/net/http/http_connection.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -155,77 +150,19 @@ class MapBloc {
 
     _stateController.add(currentState.copyWith(isSearching: true));
 
-    try {
-      final searchModel = PlacesSearchReqModel(
-        query: query,
-        location: "Ho Chi Minh City", // Default location
-        maxResults: 20,
-      );
+    // Search only in mock data
+    final results = _mockRestaurants.where((restaurant) {
+      final nameLower = restaurant.name.toLowerCase();
+      final addressLower = restaurant.address.toLowerCase();
+      final queryLower = query.toLowerCase();
 
-      ResponseModel responseModel = await Repository.searchPlaces(context, searchModel);
-
-      if (responseModel.success ?? false) {
-        final placesSearchRes = PlacesSearchResModel.fromJson(responseModel.result ?? {});
-        
-        // Convert API results to RestaurantData format
-        final results = _convertPlacesToRestaurants(placesSearchRes.results ?? []);
-        
-        _stateController.add(currentState.copyWith(
-          searchResults: results,
-          isSearching: false,
-        ));
-      } else {
-        // Fallback to mock data if API fails
-        final results = _mockRestaurants.where((restaurant) {
-          final nameLower = restaurant.name.toLowerCase();
-          final addressLower = restaurant.address.toLowerCase();
-          final queryLower = query.toLowerCase();
-
-          return nameLower.contains(queryLower) || addressLower.contains(queryLower);
-        }).toList();
-
-        _stateController.add(currentState.copyWith(
-          searchResults: results,
-          isSearching: false,
-        ));
-      }
-    } catch (e) {
-      // Fallback to mock data if API call fails
-      final results = _mockRestaurants.where((restaurant) {
-        final nameLower = restaurant.name.toLowerCase();
-        final addressLower = restaurant.address.toLowerCase();
-        final queryLower = query.toLowerCase();
-
-        return nameLower.contains(queryLower) || addressLower.contains(queryLower);
-      }).toList();
-
-      _stateController.add(currentState.copyWith(
-        searchResults: results,
-        isSearching: false,
-      ));
-    }
-  }
-
-  // Convert API places to RestaurantData format
-  List<RestaurantData> _convertPlacesToRestaurants(List<PlaceResultModel> places) {
-    return places.map((place) {
-      return RestaurantData(
-        id: place.id ?? '',
-        name: place.name ?? 'Unknown',
-        position: LatLng(
-          place.location?.lat ?? 10.762622,
-          place.location?.lng ?? 106.660172,
-        ),
-        openingHours: place.openingHours ?? 'N/A',
-        isOpen: place.isOpen ?? false,
-        phone: place.phone ?? 'N/A',
-        address: place.formattedAddress ?? place.address ?? 'N/A',
-        priceRange: place.priceLevel ?? 'N/A',
-        rating: place.rating ?? 0.0,
-        distance: 0.0, // Distance calculation would need current location
-        styleFood: place.types?.contains('restaurant') ?? true,
-      );
+      return nameLower.contains(queryLower) || addressLower.contains(queryLower);
     }).toList();
+
+    _stateController.add(currentState.copyWith(
+      searchResults: results,
+      isSearching: false,
+    ));
   }
 
   // Method to select restaurant from search results

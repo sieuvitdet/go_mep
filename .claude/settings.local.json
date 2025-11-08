@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(for file in /Volumes/DucsM1/GoMepApplication/go_mep/documents/STEP_*.md)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(flutter analyze:*)"
     ],
     "deny": [],
     "ask": []
