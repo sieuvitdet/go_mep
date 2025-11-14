@@ -5,13 +5,9 @@ import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/common/widgets/dialogs/gomep_loading_dialog.dart';
 import 'package:go_mep_application/data/local/local/shared_prefs/shared_prefs_key.dart';
-import 'package:go_mep_application/data/model/req/login_req_model.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:flutter/material.dart';
-import 'package:go_mep_application/presentation/auth/change_password/ui/change_password_screen.dart';
+import 'package:go_mep_application/presentation/auth/profile_completion/ui/profile_completion_screen.dart';
 import 'package:go_mep_application/presentation/auth/request_reset_password_phone/ui/request_reset_password_mail_screen.dart';
-import 'package:go_mep_application/presentation/auth/reset_password/ui/reset_password_screen.dart';
 import 'package:go_mep_application/presentation/main/ui/main_screen.dart';
 import 'package:go_mep_application/presentation/auth/register/ui/register_screen.dart';
 import 'package:rxdart/rxdart.dart';
@@ -78,35 +74,48 @@ class LoginBloc {
   }
 
   onLogin() async {
-    //  CustomNavigator.push(context, MainScreen());
     try {
       final phoneNumber = userNameController.text.trim();
       final password = passwordController.text.trim();
-      
+
       if (phoneNumber.isEmpty || password.isEmpty) {
         Utility.toast('Vui lòng nhập đầy đủ thông tin đăng nhập');
         return;
       }
-      GoMepLoadingDialog.show(context);
-      await Future.delayed(const Duration(seconds: 3));
 
-      final loginModel = LoginReqModel(
+      GoMepLoadingDialog.show(context);
+
+      final authRepo = Globals.authRepository;
+      if (authRepo == null) {
+        GoMepLoadingDialog.hide(context);
+        Utility.toast('Lỗi hệ thống, vui lòng thử lại');
+        return;
+      }
+
+      final user = await authRepo.login(
         phoneNumber: phoneNumber,
         password: password,
       );
 
-      ResponseModel responseModel = await Repository.login(context, loginModel);
-
       GoMepLoadingDialog.hide(context);
-      Globals.prefs.setString(SharedPrefsKey.token, "test");
-       CustomNavigator.push(context, MainScreen());
 
-      // if (responseModel.success ?? false) {
-      //   Globals.prefs.setString(SharedPrefsKey.token, responseModel.result?['access_token'] ?? '');
+      if (user != null) {
+        await Globals.userRepository?.cacheUser(user);
+        Globals.prefs.setString(SharedPrefsKey.token, "local_auth_token");
+        Globals.userMeResModel = user;
 
-      //   CustomNavigator.push(context, MainScreen());
-      // } 
+        final isProfileCompleted = Globals.prefs.getBool(SharedPrefsKey.is_profile_completed);
+
+        if (isProfileCompleted == false) {
+          CustomNavigator.push(context, const ProfileCompletionScreen());
+        } else {
+          CustomNavigator.push(context, MainScreen());
+        }
+      } else {
+        Utility.toast('Số điện thoại hoặc mật khẩu không đúng');
+      }
     } catch (e) {
+      GoMepLoadingDialog.hide(context);
       Utility.toast('Đã có lỗi xảy ra, vui lòng thử lại');
     }
   }

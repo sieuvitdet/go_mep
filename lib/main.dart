@@ -7,6 +7,12 @@ import 'package:go_mep_application/common/theme/globals/theme_provider.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/presentation/auth/splash_screen/ui/splash_screen.dart';
+import 'package:go_mep_application/data/local/database/app_database.dart';
+import 'package:go_mep_application/data/repositories/notification_repository.dart';
+import 'package:go_mep_application/data/repositories/user_repository.dart';
+import 'package:go_mep_application/data/repositories/places_repository.dart';
+import 'package:go_mep_application/data/repositories/auth_repository.dart';
+import 'package:go_mep_application/data/local/database/database_maintenance_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -28,6 +34,9 @@ void main() async {
 
   await Config.getPreferences();
 
+  // Initialize database and repositories
+  await _initializeDatabase();
+
   runApp(
     MultiProvider(
       providers: [
@@ -36,6 +45,47 @@ void main() async {
       child: MyApp(key: Globals.myApp),
     ),
   );
+}
+
+/// Initialize database, repositories, and maintenance service
+Future<void> _initializeDatabase() async {
+  try {
+    // Initialize database
+    final database = AppDatabase();
+
+    // Initialize DAOs
+    final notificationDao = database.notificationDao;
+    final userDao = database.userDao;
+    final placesDao = database.placesDao;
+
+    // Initialize repositories
+    final notificationRepo = NotificationRepository(notificationDao);
+    final userRepo = UserRepository(userDao);
+    final placesRepo = PlacesRepository(placesDao);
+    final authRepo = AuthRepository(userDao);
+
+    // Initialize maintenance service
+    final maintenanceService = DatabaseMaintenanceService(
+      database: database,
+      notificationRepo: notificationRepo,
+      userRepo: userRepo,
+      placesRepo: placesRepo,
+    );
+
+    // Store in Globals for easy access
+    Globals.database = database;
+    Globals.notificationRepository = notificationRepo;
+    Globals.userRepository = userRepo;
+    Globals.placesRepository = placesRepo;
+    Globals.authRepository = authRepo;
+    Globals.maintenanceService = maintenanceService;
+
+    await authRepo.seedDefaultUser();
+    maintenanceService.schedulePeriodicMaintenance();
+    debugPrint('✅ Database initialized successfully');
+  } catch (e) {
+    debugPrint('❌ Failed to initialize database: $e');
+  }
 }
 
 class MyApp extends StatefulWidget {

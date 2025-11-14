@@ -6,6 +6,7 @@ class UserMeResModel {
   String? fullName;
   String? dateOfBirth;
   String? address;
+  String? avatar;
   String? userType;
   bool? isActive;
   bool? isSuperuser;
@@ -17,6 +18,7 @@ class UserMeResModel {
     this.fullName,
     this.dateOfBirth,
     this.address,
+    this.avatar,
     this.userType,
     this.isActive,
     this.isSuperuser,
@@ -29,6 +31,7 @@ class UserMeResModel {
     fullName = json['full_name'];
     dateOfBirth = json['date_of_birth'];
     address = json['address'];
+    avatar = json['avatar'];
     userType = json['user_type'];
     isActive = json['is_active'];
     isSuperuser = json['is_superuser'];
@@ -42,6 +45,7 @@ class UserMeResModel {
     data['full_name'] = fullName;
     data['date_of_birth'] = dateOfBirth;
     data['address'] = address;
+    data['avatar'] = avatar;
     data['user_type'] = userType;
     data['is_active'] = isActive;
     data['is_superuser'] = isSuperuser;

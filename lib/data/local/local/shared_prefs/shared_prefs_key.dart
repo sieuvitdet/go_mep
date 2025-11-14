@@ -9,4 +9,5 @@ class SharedPrefsKey {
   static const String user_name = 'user_name';
   static const String user_email = 'user_email';
   static const String device_id = 'device_id';
+  static const String is_profile_completed = 'is_profile_completed';
 }

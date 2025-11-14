@@ -6,8 +6,8 @@ plugins {
 }
 
 android {
-    namespace = "com."
-    compileSdk = 35
+    namespace = "gomep.app.dev"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

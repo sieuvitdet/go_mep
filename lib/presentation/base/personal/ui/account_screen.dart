@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
@@ -36,6 +38,14 @@ class _AccountScreenState extends State<AccountScreen> {
   void _navigateToEditProfile(UserMeResModel user) async {
     await CustomNavigator.push(context, AccountDetailScreen(user: user, accountBloc: _accountBloc));
     widget.mainBloc.getUserInfo();
+  }
+
+  Uint8List _base64ToImage(String base64String) {
+    // Remove data:image/png;base64, prefix if present
+    final base64Data = base64String.contains(',')
+        ? base64String.split(',').last
+        : base64String;
+    return base64Decode(base64Data);
   }
 
   @override
@@ -164,11 +174,36 @@ class _AccountScreenState extends State<AccountScreen> {
                                       width: 2,
                                     ),
                                   ),
-                                  child: Icon(
+                                  child: ClipOval(
+                                    child: user.avatar != null && user.avatar!.isNotEmpty
+                                        ? (user.avatar!.startsWith('data:image')
+                                            // Base64 image
+                                            ? Image.memory(
+                                                _base64ToImage(user.avatar!),
+                                                fit: BoxFit.cover,
+                                                width: 60,
+                                                height: 60,
+                                              )
+                                            // URL image
+                                            : Image.network(
+                                                user.avatar!,
+                                                fit: BoxFit.cover,
+                                                width: 60,
+                                                height: 60,
+                                                errorBuilder: (context, error, stackTrace) {
+                                                  return Icon(
+                                                    Icons.person,
+                                                    color: AppColors.getTextColor(context),
+                                                    size: 32,
+                                                  );
+                                                },
+                                              ))
+                                        : Icon(
                                             Icons.person,
                                             color: AppColors.getTextColor(context),
                                             size: 32,
                                           ),
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 // User Info

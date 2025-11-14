@@ -1,8 +1,6 @@
+import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/extension.dart';
-import 'package:go_mep_application/data/model/req/notification_req_model.dart';
 import 'package:go_mep_application/data/model/res/notification_res_model.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 import 'dart:async';
@@ -15,6 +13,7 @@ class NotificationBloc {
   final streamLoadMore = BehaviorSubject<bool>();
   final streamTotalPages = BehaviorSubject<int>();
   final streamError = BehaviorSubject<String?>();
+  final streamUnreadCount = BehaviorSubject<int>();
 
   int currentPage = 1;
   int pageSize = 10;
@@ -32,16 +31,42 @@ class NotificationBloc {
     streamLoadMore.set(false);
     streamTotalPages.set(1);
     streamError.set(null);
-    // Remove automatic API call from constructor
+    streamUnreadCount.set(0);
+
+    // Watch unread count from database (reactive!)
+    _watchUnreadCount();
   }
 
-  Future<void> loadNotifications({bool isLoadMore = false}) async {
+  /// Watch unread count from database (auto-updates!)
+  void _watchUnreadCount() {
+    final repository = Globals.notificationRepository;
+    if (repository != null) {
+      repository.watchUnreadCount().listen((count) {
+        streamUnreadCount.set(count);
+      });
+    }
+  }
+
+  /// Load notifications with cache-first strategy
+  ///
+  /// Strategy:
+  /// 1. Load from cache first (instant UI)
+  /// 2. Fetch from API in background
+  /// 3. Update cache with fresh data
+  /// 4. If offline, use cached data only
+  Future<void> loadNotifications({bool isLoadMore = false, bool forceRefresh = false}) async {
     // Prevent concurrent API calls
     if ((!isLoadMore && _isLoading) || (isLoadMore && _isLoadingMore)) {
       return;
     }
 
     if (isLoadMore && currentPage >= totalPages) return;
+
+    final repository = Globals.notificationRepository;
+    if (repository == null) {
+      debugPrint('❌ NotificationRepository not initialized');
+      return;
+    }
 
     // Set loading states
     if (isLoadMore) {
@@ -51,65 +76,71 @@ class NotificationBloc {
       _isLoading = true;
       streamLoading.set(true);
       currentPage = 1;
-      notifications.clear();
-      streamError.set(null); // Clear previous errors
+      streamError.set(null);
     }
 
     try {
-      ResponseModel responseModel = await Repository.getNotifications(
-        context,
-        NotificationReqModel(
-          pageNumber: currentPage,
-          pageSize: pageSize,
-        ),
+      // Step 1: Load from cache first (if not force refresh)
+      if (!isLoadMore && !forceRefresh) {
+        final cached = await repository.getCachedNotifications();
+        if (cached.isNotEmpty) {
+          notifications = cached;
+          streamNotifications.set(notifications);
+          _hasInitialized = true;
+          debugPrint('📱 Loaded ${cached.length} notifications from cache');
+        }
+      }
+
+      // Step 2: Fetch from API
+      final apiNotifications = await repository.getNotifications(
+        context: context,
+        page: currentPage,
+        pageSize: pageSize,
+        forceRefresh: forceRefresh,
       );
 
-      if (responseModel.success ?? false) {
-        NotificationResModel notificationRes = NotificationResModel.fromJson(
-          responseModel.result ?? {},
-        );
-
-        if (notificationRes.data != null) {
-          if (isLoadMore) {
-            notifications.addAll(notificationRes.data!);
-          } else {
-            notifications = notificationRes.data!;
-            _hasInitialized = true;
-          }
-
-          totalPages = notificationRes.metadata?.total ?? 1;
-          streamTotalPages.set(totalPages);
-          streamNotifications.set(notifications);
-
-          if (isLoadMore) {
-            currentPage++;
-          }
+      if (apiNotifications.isNotEmpty) {
+        if (isLoadMore) {
+          notifications.addAll(apiNotifications);
+        } else {
+          notifications = apiNotifications;
+          _hasInitialized = true;
         }
 
-        // Clear error state on success
-        streamError.set(null);
-      } else {
-        // Handle API failure
-        String errorMessage =
-            responseModel.message ?? 'Không thể tải thông báo';
-        streamError.set(errorMessage);
+        // Update total pages (estimate based on loaded data)
+        totalPages = (notifications.length / pageSize).ceil() + 1;
+        streamTotalPages.set(totalPages);
+        streamNotifications.set(notifications);
 
-        // If this is the first load and failed, set empty list
-        if (!isLoadMore && !_hasInitialized) {
+        if (isLoadMore) {
+          currentPage++;
+        }
+
+        streamError.set(null);
+        debugPrint('✅ Loaded ${apiNotifications.length} notifications from API');
+      } else {
+        // No data from API, use cache
+        if (!_hasInitialized) {
           streamNotifications.set([]);
         }
       }
     } catch (e) {
-      // Handle network errors or exceptions
-      String errorMessage = 'Lỗi kết nối mạng. Vui lòng thử lại.';
-      streamError.set(errorMessage);
+      debugPrint('❌ Error loading notifications: $e');
 
-      // If this is the first load and failed, set empty list
-      if (!isLoadMore && !_hasInitialized) {
-        streamNotifications.set([]);
+      // On error, try to use cache
+      if (!_hasInitialized && !isLoadMore) {
+        final cached = await repository.getCachedNotifications();
+        if (cached.isNotEmpty) {
+          notifications = cached;
+          streamNotifications.set(notifications);
+          _hasInitialized = true;
+          streamError.set('Hiển thị dữ liệu offline');
+        } else {
+          streamError.set('Lỗi kết nối mạng. Vui lòng thử lại.');
+          streamNotifications.set([]);
+        }
       }
     } finally {
-      // Always reset loading states
       _isLoading = false;
       _isLoadingMore = false;
       streamLoading.set(false);
@@ -117,60 +148,111 @@ class NotificationBloc {
     }
   }
 
+  /// Mark all notifications as read
   Future<void> markAllAsRead() async {
-    // TODO: Implement mark all as read API call when available
-    // For now, update local state
-    for (var notification in notifications) {
-      notification = NotificationData(
-        id: notification.id,
-        title: notification.title,
-        content: notification.content,
-        type: notification.type,
-        isRead: true,
-        createAt: notification.createAt,
-      );
-    }
-    streamNotifications.set(notifications);
-  }
+    final repository = Globals.notificationRepository;
+    if (repository == null) return;
 
-  Future<void> markAsRead(String notificationId) async {
-    // TODO: Implement mark as read API call when available
-    // For now, update local state
-    int index = notifications.indexWhere((n) => n.id == notificationId);
-    if (index != -1) {
-      notifications[index] = NotificationData(
-        id: notifications[index].id,
-        title: notifications[index].title,
-        content: notifications[index].content,
-        type: notifications[index].type,
-        isRead: true,
-        createAt: notifications[index].createAt,
-      );
+    try {
+      // Update local cache
+      await repository.markAllAsRead();
+
+      // Update local state
+      for (var i = 0; i < notifications.length; i++) {
+        final n = notifications[i];
+        notifications[i] = NotificationData(
+          id: n.id,
+          userId: n.userId,
+          notificationId: n.notificationId,
+          title: n.title,
+          content: n.content,
+          targetKey: n.targetKey,
+          targetData: n.targetData,
+          isRead: true,
+          createAt: n.createAt,
+          readAt: DateTime.now(),
+          deliveredAt: n.deliveredAt,
+          type: n.type,
+          priority: n.priority,
+        );
+      }
+
       streamNotifications.set(notifications);
+      debugPrint('✅ Marked all notifications as read');
+    } catch (e) {
+      debugPrint('❌ Error marking all as read: $e');
     }
   }
 
-  Future<void> refreshNotifications() async {
-    // Cancel any pending debounced calls
-    _debounceTimer?.cancel();
+  /// Mark single notification as read
+  Future<void> markAsRead(String notificationId) async {
+    final repository = Globals.notificationRepository;
+    if (repository == null) return;
 
-    // Use debounce to prevent rapid consecutive refresh calls
+    try {
+      // Update local cache
+      await repository.markAsRead(notificationId);
+
+      // Update local state
+      int index = notifications.indexWhere((n) => n.id == notificationId);
+      if (index != -1) {
+        final n = notifications[index];
+        notifications[index] = NotificationData(
+          id: n.id,
+          userId: n.userId,
+          notificationId: n.notificationId,
+          title: n.title,
+          content: n.content,
+          targetKey: n.targetKey,
+          targetData: n.targetData,
+          isRead: true,
+          createAt: n.createAt,
+          readAt: DateTime.now(),
+          deliveredAt: n.deliveredAt,
+          type: n.type,
+          priority: n.priority,
+        );
+
+        streamNotifications.set(notifications);
+        debugPrint('✅ Marked notification $notificationId as read');
+      }
+    } catch (e) {
+      debugPrint('❌ Error marking notification as read: $e');
+    }
+  }
+
+  /// Refresh notifications (with debounce)
+  Future<void> refreshNotifications() async {
+    _debounceTimer?.cancel();
     _debounceTimer = Timer(Duration(milliseconds: 500), () {
-      loadNotifications();
+      loadNotifications(forceRefresh: true);
     });
   }
 
-  // Method to initialize data loading (call this from UI when needed)
+  /// Initialize notifications (call from UI)
   void initializeNotifications() {
     if (!_hasInitialized && !_isLoading) {
       loadNotifications();
     }
   }
 
-  // Method to force reload (bypass debounce)
+  /// Force refresh (bypass debounce)
   Future<void> forceRefresh() async {
     _debounceTimer?.cancel();
-    await loadNotifications();
+    await loadNotifications(forceRefresh: true);
+  }
+
+  /// Get unread notification count
+  Future<int> getUnreadCount() async {
+    final repository = Globals.notificationRepository;
+    if (repository == null) return 0;
+
+    try {
+      return await repository.getUnreadCount();
+    } catch (e) {
+      debugPrint('❌ Error getting unread count: $e');
+      return 0;
+    }
   }
 
   void dispose() {
@@ -180,5 +262,6 @@ class NotificationBloc {
     streamLoadMore.close();
     streamTotalPages.close();
     streamError.close();
+    streamUnreadCount.close();
   }
 }

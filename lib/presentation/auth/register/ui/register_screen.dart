@@ -4,6 +4,7 @@ import 'package:go_mep_application/presentation/auth/register/bloc/register_cont
 import 'package:go_mep_application/presentation/auth/register/ui/register_phone_screen.dart';
 import 'package:go_mep_application/presentation/auth/register/ui/register_otp_screen.dart';
 import 'package:go_mep_application/presentation/auth/register/ui/register_password_screen.dart';
+import 'package:go_mep_application/presentation/auth/register/ui/register_information_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -62,6 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return RegisterOTPScreen(controller: _controller);
                 case RegisterStep.password:
                   return RegisterPasswordScreen(controller: _controller);
+                case RegisterStep.information:
+                  return RegisterInformationScreen(controller: _controller);
               }
             },
           ),

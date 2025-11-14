@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/theme/assets.dart';
+import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/gps_utils.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
+import 'package:go_mep_application/data/model/res/places_search_res_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -20,6 +21,7 @@ class MapState {
   final LatLng initialPosition;
   final List<RestaurantData> searchResults;
   final bool isSearching;
+  final bool isLoading;
 
   MapState({
     required this.markers,
@@ -29,6 +31,7 @@ class MapState {
     required this.initialPosition,
     this.searchResults = const [],
     this.isSearching = false,
+    this.isLoading = false,
   });
 
   MapState copyWith({
@@ -39,6 +42,7 @@ class MapState {
     LatLng? initialPosition,
     List<RestaurantData>? searchResults,
     bool? isSearching,
+    bool? isLoading,
     bool clearSelection = false,
   }) {
     return MapState(
@@ -49,6 +53,7 @@ class MapState {
       initialPosition: initialPosition ?? this.initialPosition,
       searchResults: searchResults ?? this.searchResults,
       isSearching: isSearching ?? this.isSearching,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -80,6 +85,49 @@ class RestaurantData {
     required this.distance,
     required this.styleFood,
   });
+
+  /// Factory method to convert from PlaceResultModel to RestaurantData
+  factory RestaurantData.fromPlaceModel(PlaceResultModel place, {double distance = 0.0}) {
+    return RestaurantData(
+      id: place.id ?? '',
+      name: place.name ?? 'Unknown',
+      position: LatLng(
+        place.location?.lat ?? 0.0,
+        place.location?.lng ?? 0.0,
+      ),
+      openingHours: place.openingHours ?? 'N/A',
+      isOpen: place.isOpen ?? false,
+      phone: place.phone ?? 'N/A',
+      address: place.formattedAddress ?? place.address ?? 'N/A',
+      priceRange: _parsePriceLevel(place.priceLevel),
+      rating: place.rating ?? 0.0,
+      distance: distance,
+      styleFood: _isFood(place.types),
+    );
+  }
+
+  static String _parsePriceLevel(String? priceLevel) {
+    if (priceLevel == null) return 'N/A';
+    switch (priceLevel.toLowerCase()) {
+      case 'inexpensive':
+        return '20.000-40.000';
+      case 'moderate':
+        return '40.000-80.000';
+      case 'expensive':
+        return '80.000-150.000';
+      case 'very_expensive':
+        return '150.000+';
+      default:
+        return '30.000-60.000';
+    }
+  }
+
+  static bool _isFood(List<String>? types) {
+    if (types == null) return true;
+    // If contains 'bar', 'cafe', 'night_club' -> drink icon
+    final drinkTypes = ['bar', 'cafe', 'night_club', 'liquor_store'];
+    return !types.any((type) => drinkTypes.contains(type.toLowerCase()));
+  }
 }
 
 // Stream-based Controller
@@ -101,6 +149,9 @@ class MapBloc {
   MapState get currentState => _stateController.value;
   GoogleMapController? mapController;
 
+  // Cached restaurants list
+  List<RestaurantData> _allRestaurants = [];
+
   MapBloc({required this.context}) {
     // Setup debounced search
     _searchSubscription = _searchQueryController
@@ -116,21 +167,78 @@ class MapBloc {
     _stateController.close();
   }
 
-  // Mock data for 50 restaurants
-  static final List<RestaurantData> _mockRestaurants = [
-    // District 7 cluster (southwest)
-    RestaurantData(id: '1', name: 'Sườn cay', position: const LatLng(10.712622, 106.620172), openingHours: '6:00 - 22:00', isOpen: true, phone: '+84 854626548', address: '162 Đường Sáng Tạo, P. Tân Thuận Tây, Q.7', priceRange: '30.000-45.000', rating: 4.5, distance: 1.2,styleFood: true),
-    RestaurantData(id: '2', name: 'Xá bì chả', position: const LatLng(10.714622, 106.612172), openingHours: '7:00 - 23:00', isOpen: true, phone: '+84 901234567', address: '45 Nguyễn Văn Linh, Q.7', priceRange: '25.000-40.000', rating: 4.2, distance: 0.8,styleFood: false),
-    RestaurantData(id: '3', name: 'Nước miễn phí', position: const LatLng(10.760622, 106.658172), openingHours: '8:00 - 21:00', isOpen: true, phone: '+84 912345678', address: '78 Huỳnh Tấn Phát, Q.7', priceRange: '20.000-35.000', rating: 4.0, distance: 1.5,styleFood: true),
-    RestaurantData(id: '4', name: 'Cơm tấm Hương Quê', position: const LatLng(10.733622, 106.656172), openingHours: '6:00 - 20:00', isOpen: true, phone: '+84 923456789', address: '123 Nguyễn Hữu Thọ, Q.7', priceRange: '35.000-50.000', rating: 4.7, distance: 2.1,styleFood: false),
-    RestaurantData(id: '5', name: 'Rượu nho', position: const LatLng(10.766622, 106.644172), openingHours: '9:00 - 22:00', isOpen: false, phone: '+84 934567890', address: '56 Lê Văn Lương, Q.7', priceRange: '40.000-60.000', rating: 4.3, distance: 1.8,styleFood: true),
-    RestaurantData(id: '6', name: 'Trà đá đây', position: const LatLng(10.765622, 106.645172), openingHours: '5:00 - 23:00', isOpen: true, phone: '+84 945678901', address: '89 Trần Xuân Soạn, Q.7', priceRange: '15.000-25.000', rating: 3.9, distance: 0.9,styleFood: false),
-    RestaurantData(id: '7', name: 'Gà nướng lu', position: const LatLng(10.757622, 106.652172), openingHours: '10:00 - 22:00', isOpen: true, phone: '+84 956789012', address: '234 Nguyễn Thị Thập, Q.7', priceRange: '45.000-70.000', rating: 4.6, distance: 2.5,styleFood: true),
-  ];
-
+  /// Initialize map with cached places
   Future<void> initializeMap() async {
-    final markers = await _createMarkers(currentState.mapMode);
-    _stateController.add(currentState.copyWith(markers: markers));
+    _stateController.add(currentState.copyWith(isLoading: true));
+
+    try {
+      // Load from cache first
+      await _loadPlacesFromCache();
+
+      // Create markers
+      final markers = await _createMarkers(currentState.mapMode);
+      _stateController.add(currentState.copyWith(
+        markers: markers,
+        isLoading: false,
+      ));
+
+      // Fetch fresh data in background (if needed)
+      _refreshPlacesInBackground();
+    } catch (e) {
+      debugPrint('❌ Error initializing map: $e');
+      _stateController.add(currentState.copyWith(isLoading: false));
+    }
+  }
+
+  /// Load places from cache
+  Future<void> _loadPlacesFromCache() async {
+    final repository = Globals.placesRepository;
+    if (repository == null) {
+      debugPrint('❌ PlacesRepository not initialized');
+      return;
+    }
+
+    try {
+      final cachedPlaces = await repository.getAllCachedPlaces();
+      _allRestaurants = cachedPlaces
+          .map((place) => RestaurantData.fromPlaceModel(place))
+          .toList();
+
+      debugPrint('📱 Loaded ${_allRestaurants.length} places from cache');
+    } catch (e) {
+      debugPrint('❌ Error loading places from cache: $e');
+    }
+  }
+
+  /// Refresh places in background (don't block UI)
+  Future<void> _refreshPlacesInBackground() async {
+    final repository = Globals.placesRepository;
+    if (repository == null) return;
+
+    try {
+      // Search for popular place types in Ho Chi Minh City
+      final result = await repository.searchPlaces(
+        context: context,
+        query: 'restaurant',
+        latitude: currentState.initialPosition.latitude,
+        longitude: currentState.initialPosition.longitude,
+        radius: 5000, // 5km radius
+      );
+
+      if (result != null && result.results != null && result.results!.isNotEmpty) {
+        _allRestaurants = result.results!
+            .map((place) => RestaurantData.fromPlaceModel(place))
+            .toList();
+
+        // Update markers
+        final markers = await _createMarkers(currentState.mapMode);
+        _stateController.add(currentState.copyWith(markers: markers));
+
+        debugPrint('✅ Refreshed ${_allRestaurants.length} places from API');
+      }
+    } catch (e) {
+      debugPrint('❌ Error refreshing places: $e');
+    }
   }
 
   // Public method to trigger search
@@ -138,7 +246,7 @@ class MapBloc {
     _searchQueryController.add(query);
   }
 
-  // Private method to perform the actual search
+  /// Perform search with cache-first strategy
   Future<void> _performSearch(String query) async {
     if (query.isEmpty) {
       _stateController.add(currentState.copyWith(
@@ -150,19 +258,73 @@ class MapBloc {
 
     _stateController.add(currentState.copyWith(isSearching: true));
 
-    // Search only in mock data
-    final results = _mockRestaurants.where((restaurant) {
-      final nameLower = restaurant.name.toLowerCase();
-      final addressLower = restaurant.address.toLowerCase();
-      final queryLower = query.toLowerCase();
+    final repository = Globals.placesRepository;
 
-      return nameLower.contains(queryLower) || addressLower.contains(queryLower);
-    }).toList();
+    try {
+      // Step 1: Search in cached data first
+      final cachedResults = _allRestaurants.where((restaurant) {
+        final nameLower = restaurant.name.toLowerCase();
+        final addressLower = restaurant.address.toLowerCase();
+        final queryLower = query.toLowerCase();
 
-    _stateController.add(currentState.copyWith(
-      searchResults: results,
-      isSearching: false,
-    ));
+        return nameLower.contains(queryLower) || addressLower.contains(queryLower);
+      }).toList();
+
+      // Show cached results immediately
+      if (cachedResults.isNotEmpty) {
+        _stateController.add(currentState.copyWith(
+          searchResults: cachedResults,
+          isSearching: false,
+        ));
+      }
+
+      // Step 2: Search via API (if repository available)
+      if (repository != null) {
+        final result = await repository.searchPlaces(
+          context: context,
+          query: query,
+          latitude: currentState.initialPosition.latitude,
+          longitude: currentState.initialPosition.longitude,
+          radius: 5000,
+        );
+
+        if (result != null && result.results != null) {
+          final apiResults = result.results!
+              .map((place) => RestaurantData.fromPlaceModel(place))
+              .toList();
+
+          // Update with API results
+          _stateController.add(currentState.copyWith(
+            searchResults: apiResults,
+            isSearching: false,
+          ));
+
+          debugPrint('✅ Found ${apiResults.length} places for "$query"');
+        }
+      } else {
+        // No repository, use cached results only
+        _stateController.add(currentState.copyWith(
+          searchResults: cachedResults,
+          isSearching: false,
+        ));
+      }
+    } catch (e) {
+      debugPrint('❌ Error searching places: $e');
+
+      // On error, use cached results
+      final cachedResults = _allRestaurants.where((restaurant) {
+        final nameLower = restaurant.name.toLowerCase();
+        final addressLower = restaurant.address.toLowerCase();
+        final queryLower = query.toLowerCase();
+
+        return nameLower.contains(queryLower) || addressLower.contains(queryLower);
+      }).toList();
+
+      _stateController.add(currentState.copyWith(
+        searchResults: cachedResults,
+        isSearching: false,
+      ));
+    }
   }
 
   // Method to select restaurant from search results
@@ -179,7 +341,10 @@ class MapBloc {
   }
 
   Future<void> selectMarker(String markerId) async {
-    final restaurant = _mockRestaurants.firstWhere((r) => r.id == markerId);
+    final restaurant = _allRestaurants.firstWhere(
+      (r) => r.id == markerId,
+      orElse: () => _allRestaurants.first,
+    );
     final markers = await _createMarkers(currentState.mapMode, selectedId: markerId);
 
     _stateController.add(currentState.copyWith(
@@ -190,7 +355,7 @@ class MapBloc {
     showDetailRestaurantBottomSheet(currentState);
   }
 
-   void animateToMarker(LatLng position) {
+  void animateToMarker(LatLng position) {
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -206,7 +371,9 @@ class MapBloc {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ItemRestaurantBottomSheet(restaurant: state.selectedRestaurant!, onTap: (restaurant) {
+      builder: (context) => ItemRestaurantBottomSheet(
+        restaurant: state.selectedRestaurant!,
+        onTap: (restaurant) {
           animateToMarker(restaurant.position);
         },
         onClearSelection: () {
@@ -218,7 +385,7 @@ class MapBloc {
           clearSelection();
           GpsUtils.googleMapsDirection(destination: state.selectedRestaurant!.position);
         },
-        ),
+      ),
     );
   }
 
@@ -242,9 +409,12 @@ class MapBloc {
   Future<Set<Marker>> _createMarkers(MapMode mode, {String? selectedId}) async {
     final Set<Marker> markers = {};
 
-    for (var restaurant in _mockRestaurants) {
+    for (var restaurant in _allRestaurants) {
       final isSelected = restaurant.id == selectedId;
-      final icon = await createIconBitmap(isMarkerDrink: restaurant.styleFood,isSelected: isSelected );
+      final icon = await createIconBitmap(
+        isMarkerDrink: restaurant.styleFood,
+        isSelected: isSelected,
+      );
 
       markers.add(
         Marker(
@@ -262,14 +432,52 @@ class MapBloc {
     return markers;
   }
 
-
-  static Future<BitmapDescriptor> createIconBitmap({bool isMarkerDrink = false,bool isSelected = false}) async {
+  static Future<BitmapDescriptor> createIconBitmap({
+    bool isMarkerDrink = false,
+    bool isSelected = false,
+  }) async {
     return await BitmapDescriptor.asset(
-       ImageConfiguration(
+      ImageConfiguration(
         devicePixelRatio: 2.5,
-        size:isSelected ? Size(32, 32) : Size(28, 28),
+        size: isSelected ? Size(32, 32) : Size(28, 28),
       ),
-      isMarkerDrink ? Assets.markerDrink : Assets.markerFood, 
+      isMarkerDrink ? Assets.markerDrink : Assets.markerFood,
     );
+  }
+
+  /// Refresh all places (force API call)
+  Future<void> refreshPlaces() async {
+    await _refreshPlacesInBackground();
+  }
+
+  /// Get nearby places
+  Future<void> getNearbyPlaces({double radiusInKm = 5.0}) async {
+    final repository = Globals.placesRepository;
+    if (repository == null) return;
+
+    try {
+      _stateController.add(currentState.copyWith(isLoading: true));
+
+      final places = await repository.getNearbyPlaces(
+        latitude: currentState.initialPosition.latitude,
+        longitude: currentState.initialPosition.longitude,
+        radiusInKm: radiusInKm,
+      );
+
+      _allRestaurants = places
+          .map((place) => RestaurantData.fromPlaceModel(place))
+          .toList();
+
+      final markers = await _createMarkers(currentState.mapMode);
+      _stateController.add(currentState.copyWith(
+        markers: markers,
+        isLoading: false,
+      ));
+
+      debugPrint('✅ Loaded ${_allRestaurants.length} nearby places');
+    } catch (e) {
+      debugPrint('❌ Error loading nearby places: $e');
+      _stateController.add(currentState.copyWith(isLoading: false));
+    }
   }
 }

@@ -1,11 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
-import 'package:go_mep_application/data/model/req/update_profile_req_model.dart';
 import 'package:go_mep_application/data/model/res/user_me_res_model.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:go_mep_application/presentation/base/personal/bloc/account_bloc.dart';
 
 class AccountDetailScreen extends StatefulWidget {
@@ -168,6 +167,88 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
+  Uint8List _base64ToImage(String base64String) {
+    final base64Data = base64String.contains(',')
+        ? base64String.split(',').last
+        : base64String;
+    return base64Decode(base64Data);
+  }
+
+  Widget _buildAvatarSection(UserMeResModel user) {
+    return Center(
+      child: Stack(
+        children: [
+          // Avatar
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.blue,
+                width: 3,
+              ),
+            ),
+            child: ClipOval(
+              child: user.avatar != null && user.avatar!.isNotEmpty
+                  ? (user.avatar!.startsWith('data:image')
+                      ? Image.memory(
+                          _base64ToImage(user.avatar!),
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                        )
+                      : Image.network(
+                          user.avatar!,
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.person,
+                              color: AppColors.getTextColor(context),
+                              size: 60,
+                            );
+                          },
+                        ))
+                  : Icon(
+                      Icons.person,
+                      color: AppColors.getTextColor(context),
+                      size: 60,
+                    ),
+            ),
+          ),
+          // Edit button
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: () {
+                widget.accountBloc.pickAndUploadAvatar();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.blue,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.getBackgroundColor(context),
+                    width: 2,
+                  ),
+                ),
+                child: Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoField({
     required IconData icon,
     required String value,
@@ -253,6 +334,9 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             UserMeResModel user = asyncSnapshot.data ?? widget.user;
             return Column(
               children: [
+                // Avatar section
+                _buildAvatarSection(user),
+                Gaps.vGap24,
                 // Phone Number
                 _buildInfoField(
                   icon: Icons.smartphone,

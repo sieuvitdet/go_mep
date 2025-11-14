@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
+import 'package:go_mep_application/common/utils/gps_utils.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
-import 'package:go_mep_application/data/model/req/register_req_model.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
-import 'package:go_mep_application/net/http/http_connection.dart';
+import 'package:go_mep_application/data/local/local/shared_prefs/shared_prefs_key.dart';
 import 'package:go_mep_application/presentation/auth/login/ui/login_screen.dart';
 
 enum RegisterStep {
   phone,
   otp,
   password,
+  information,
 }
 
 class RegisterState {
@@ -90,6 +92,7 @@ class RegisterController {
   final _enableSubmitController = StreamController<bool>.broadcast();
   final _showPasswordController = StreamController<bool>.broadcast();
   final _showConfirmPasswordController = StreamController<bool>.broadcast();
+  final _fetchingLocationController = StreamController<bool>.broadcast();
 
   Stream<String?> get phoneErrorStream => _phoneErrorController.stream;
   Stream<String?> get passwordErrorStream => _passwordErrorController.stream;
@@ -97,6 +100,7 @@ class RegisterController {
   Stream<bool> get enableSubmitStream => _enableSubmitController.stream;
   Stream<bool> get showPasswordStream => _showPasswordController.stream;
   Stream<bool> get showConfirmPasswordStream => _showConfirmPasswordController.stream;
+  Stream<bool> get fetchingLocationStream => _fetchingLocationController.stream;
 
   bool _showPassword = false;
   bool _showConfirmPassword = false;
@@ -106,11 +110,13 @@ class RegisterController {
     _enableSubmitController.add(false);
     _showPasswordController.add(false);
     _showConfirmPasswordController.add(false);
+    _fetchingLocationController.add(false);
 
     // Add listeners
     phoneController.addListener(_validatePhone);
     passwordController.addListener(_validatePasswordFields);
     confirmPasswordController.addListener(_validatePasswordFields);
+    fullNameController.addListener(_validateInformationFields);
   }
 
   void _updateState(RegisterState newState) {
@@ -256,21 +262,6 @@ class RegisterController {
       return;
     }
 
-    // if (fullName.isEmpty) {
-    //   Utility.toast('Vui lòng nhập họ tên');
-    //   return;
-    // }
-
-    // if (dateOfBirth.isEmpty) {
-    //   Utility.toast('Vui lòng nhập ngày sinh');
-    //   return;
-    // }
-
-    // if (address.isEmpty) {
-    //   Utility.toast('Vui lòng nhập địa chỉ');
-    //   return;
-    // }
-
     if (password != confirmPassword) {
       Utility.toast('Mật khẩu không khớp');
       return;
@@ -283,39 +274,44 @@ class RegisterController {
 
     _updateState(_currentState.copyWith(isLoading: true));
 
-    await Future.delayed(const Duration(seconds: 3));
-
     try {
-      final registerModel = RegisterReqModel(
+      // Register user to local database
+      final authRepo = Globals.authRepository;
+      if (authRepo == null) {
+        _updateState(_currentState.copyWith(isLoading: false));
+        Utility.toast('Lỗi hệ thống, vui lòng thử lại');
+        return;
+      }
+
+      final newUser = await authRepo.register(
         phoneNumber: _currentState.phoneNumber,
         password: password,
-        fullName: fullName,
-        dateOfBirth: dateOfBirth,
-        address: address,
+        fullName: fullName.isEmpty ? 'User ${_currentState.phoneNumber}' : fullName,
+        dateOfBirth: dateOfBirth.isEmpty ? null : dateOfBirth,
+        address: address.isEmpty ? null : address,
       );
-      Utility.toast('Đăng ký thành công!');
 
-      CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
+      _updateState(_currentState.copyWith(isLoading: false));
 
-      // ResponseModel responseModel = await Repository.register(context, registerModel);
+      if (newUser != null) {
+        // Save password to state for later use
+        _updateState(_currentState.copyWith(
+          password: password,
+          step: RegisterStep.information,
+        ));
 
-      // if (responseModel.success ?? false) {
-      //   _updateState(_currentState.copyWith(isLoading: false));
-      //   Utility.toast('Đăng ký thành công!');
-      //   CustomNavigator.pop(context);
-      // } else {
-      //   _updateState(_currentState.copyWith(
-      //     isLoading: false,
-      //     errorMessage: 'Đăng ký thất bại, vui lòng thử lại',
-      //   ));
-      //   Utility.toast('Đăng ký thất bại, vui lòng thử lại');
-      // }
+        // Cache user info
+        await Globals.userRepository?.cacheUser(newUser);
+      } else {
+        // Phone number already exists
+        Utility.toast('Số điện thoại đã được đăng ký');
+      }
     } catch (e) {
       _updateState(_currentState.copyWith(
         isLoading: false,
         errorMessage: 'Đã có lỗi xảy ra, vui lòng thử lại',
       ));
-      Utility.toast('Đã có lỗi xảy ra, vui lòng thử lại');
+      Utility.toast('Đã có lỗi xảy ra: ${e.toString()}');
     }
   }
 
@@ -330,12 +326,141 @@ class RegisterController {
     _showConfirmPasswordController.add(_showConfirmPassword);
   }
 
+  // Validate information fields
+  void _validateInformationFields() {
+    final fullName = fullNameController.text.trim();
+    final isValid = fullName.isNotEmpty;
+    _enableSubmitController.add(isValid);
+  }
+
+  // Select date of birth
+  Future<void> selectDateOfBirth(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      final formattedDate =
+          '${picked.day.toString().padLeft(2, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.year}';
+      dateOfBirthController.text = formattedDate;
+    }
+  }
+
+  // Get current location and parse to address
+  Future<void> getCurrentLocation() async {
+    _fetchingLocationController.add(true);
+    try {
+      // Get current position
+      final position = await GpsUtils.determinePosition();
+
+      // Reverse geocoding to get address
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final placemark = placemarks.first;
+        final addressParts = [
+          placemark.street,
+          placemark.subLocality,
+          placemark.locality,
+          placemark.administrativeArea,
+          placemark.country,
+        ].where((part) => part != null && part.isNotEmpty).join(', ');
+
+        if (addressParts.isNotEmpty) {
+          addressController.text = addressParts;
+          Utility.toast('Đã lấy địa chỉ hiện tại');
+        } else {
+          Utility.toast('Không thể lấy địa chỉ từ vị trí hiện tại');
+        }
+      } else {
+        Utility.toast('Không thể lấy địa chỉ từ vị trí hiện tại');
+      }
+    } catch (e) {
+      Utility.toast('Lỗi khi lấy vị trí: ${e.toString()}');
+    }
+    _fetchingLocationController.add(false);
+  }
+
+  // Submit information and complete registration
+  Future<void> submitInformation() async {
+    final fullName = fullNameController.text.trim();
+    final dateOfBirth = dateOfBirthController.text.trim();
+    final address = addressController.text.trim();
+
+    if (fullName.isEmpty) {
+      Utility.toast('Vui lòng nhập họ và tên');
+      return;
+    }
+
+    _updateState(_currentState.copyWith(isLoading: true));
+
+    try {
+      // Update user information in database
+      final authRepo = Globals.authRepository;
+      if (authRepo == null) {
+        _updateState(_currentState.copyWith(isLoading: false));
+        Utility.toast('Lỗi hệ thống, vui lòng thử lại');
+        return;
+      }
+
+      // Get current user and update
+      final currentUser = await authRepo.getUserByPhone(_currentState.phoneNumber);
+      if (currentUser != null) {
+        // Update user with new information
+        final updatedUser = await Globals.userRepository?.updateUserInfo(
+          phoneNumber: _currentState.phoneNumber,
+          fullName: fullName,
+          dateOfBirth: dateOfBirth.isEmpty ? null : dateOfBirth,
+          address: address.isEmpty ? null : address,
+        );
+
+        if (updatedUser != null) {
+          // Mark profile as completed
+          await Globals.prefs.setBool(
+            SharedPrefsKey.is_profile_completed,
+            true,
+          );
+
+          _updateState(_currentState.copyWith(isLoading: false));
+          Utility.toast('Hoàn thành đăng ký!');
+          CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
+        } else {
+          _updateState(_currentState.copyWith(isLoading: false));
+          Utility.toast('Không thể cập nhật thông tin');
+        }
+      }
+    } catch (e) {
+      _updateState(_currentState.copyWith(
+        isLoading: false,
+        errorMessage: 'Đã có lỗi xảy ra',
+      ));
+      Utility.toast('Đã có lỗi xảy ra: ${e.toString()}');
+    }
+  }
+
+  // Skip information step
+  Future<void> skipInformation() async {
+    // Mark profile as NOT completed (user can complete later)
+    await Globals.prefs.setBool(SharedPrefsKey.is_profile_completed, false);
+
+    Utility.toast('Bạn có thể hoàn thiện thông tin sau');
+    CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
+  }
+
   // Go back to previous step
   void goBack() {
     if (_currentState.step == RegisterStep.otp) {
       _updateState(_currentState.copyWith(step: RegisterStep.phone));
     } else if (_currentState.step == RegisterStep.password) {
       _updateState(_currentState.copyWith(step: RegisterStep.otp));
+    } else if (_currentState.step == RegisterStep.information) {
+      // If going back from information, go to login instead
+      CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
     } else {
       CustomNavigator.pop(context);
     }
@@ -359,6 +484,7 @@ class RegisterController {
     _enableSubmitController.close();
     _showPasswordController.close();
     _showConfirmPasswordController.close();
+    _fetchingLocationController.close();
   }
 }
 
