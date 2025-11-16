@@ -8,6 +8,7 @@ import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/common/widgets/dialogs/gomep_loading_dialog.dart';
 import 'package:go_mep_application/data/model/req/update_profile_req_model.dart';
 import 'package:go_mep_application/data/model/res/user_me_res_model.dart';
+import 'package:go_mep_application/main.dart';
 import 'package:go_mep_application/net/api/interaction.dart';
 import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:go_mep_application/presentation/auth/login/ui/login_screen.dart';
@@ -44,6 +45,7 @@ class AccountBloc {
     _loadingController.add(false);
 
     Globals.prefs.dispose();
+    DraggableStackService().updateIsShowDraggableStack(false);
     CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
   }
 

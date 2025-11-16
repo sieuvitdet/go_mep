@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/theme/globals/globals.dart';
@@ -170,7 +171,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
         backgroundColor: AppColors.getBackgroundColor(context),
         elevation: 0,
         title: Text(
-          'Hoàn thiện thông tin',
+          '',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -185,6 +186,8 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
           child: Column(
             children: [
               const Spacer(),
+              _buildLogo(),
+              const SizedBox(height: 24),
               Text(
                 'Thông tin cá nhân',
                 style: TextStyle(
@@ -249,10 +252,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     borDerColor: AppColors.grey,
                     textInputColor: const Color(0xFF616161),
                     fontSizeHint: 16,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
+                    contentPadding: EdgeInsets.only(top: 12, bottom: 12, left: 12, right: 40),
                   ),
                   Positioned(
                     right: 8,
@@ -299,7 +299,7 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                     text: 'Hoàn thành',
                     onTap: isEnabled ? submitInformation : null,
                     color: isEnabled
-                        ? AppColors.primary
+                        ? null
                         : AppColors.grey.withValues(alpha: 0.3),
                     textColor: isEnabled ? Colors.white : AppColors.grey,
                     radius: 8,
@@ -316,7 +316,6 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.grey,
-                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -324,6 +323,45 @@ class _ProfileCompletionScreenState extends State<ProfileCompletionScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLogo() {
+    return SizedBox(
+      width: 127,
+      height: 127,
+      child: Stack(
+        children: [
+          // Outer circle map
+          Positioned.fill(
+            child: SvgPicture.asset(
+              'assets/figma/logo_map_circle.svg',
+              width: 127,
+              height: 127,
+            ),
+          ),
+          // Inner gradient shape
+          Positioned(
+            left: 35,
+            top: 13,
+            child: SvgPicture.asset(
+              'assets/figma/logo_pin_shape.svg',
+              width: 57,
+              height: 71,
+            ),
+          ),
+          // Car icon
+          Positioned(
+            left: 55,
+            top: 84,
+            child: SvgPicture.asset(
+              'assets/figma/logo_car_icon.svg',
+              width: 17,
+              height: 17,
+            ),
+          ),
+        ],
       ),
     );
   }

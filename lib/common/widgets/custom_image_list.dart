@@ -55,21 +55,10 @@ class CustomImageList extends StatelessWidget {
                     onTap: (enableAdd)
                         ? () {
                             if (onAdd != null) {
-                              CustomImagePicker.showMultiPicker(context,
-                                  numberCar: numberCar, (files) {
-                                if (limit != null) {
-                                  if (((models?.length ?? 0) + files.length) >
-                                      limit!) {
-                                    CustomNavigator.showCustomAlertDialog(
-                                        context,
-                                        AppLocalizations.text(
-                                            "Lỗi khi chọn ảnh"),
-                                        type: CustomAlertDialogType.warning);
-                                  } else {
-                                    onAdd!(files);
-                                  }
-                                } else {
-                                  onAdd!(files);
+                              CustomImagePicker.showPicker(context,
+                                  (bytes) {
+                                if (onAdd != null) {
+                                  onAdd!([bytes]);
                                 }
                               });
                             } else {

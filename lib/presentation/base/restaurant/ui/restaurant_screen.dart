@@ -4,7 +4,6 @@ import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/presentation/base/restaurant/ui/restaurant_detail_screen.dart';
 import 'package:go_mep_application/presentation/main/bloc/main_bloc.dart';
 
-
 class RestaurantScreen extends StatefulWidget {
   final MainBloc mainBloc;
   const RestaurantScreen({Key? key, required this.mainBloc}) : super(key: key);
@@ -85,7 +84,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             Expanded(
               child: ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: _restaurants.length + (_isLoadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index >= _restaurants.length) {
@@ -93,7 +93,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5691FF)),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xFF5691FF)),
                         ),
                       ),
                     );
@@ -130,20 +131,20 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             ),
           ),
           const SizedBox(width: 16),
-         Text(
+          Text(
             'Quán ăn',
             style: TextStyle(
               height: 1.2,
-              color:  AppColors.getTextColor(context),
+              color: AppColors.getTextColor(context),
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
-           Spacer(),
+          Spacer(),
           Container(
             width: 24,
             height: 24,
-            child:  Icon(
+            child: Icon(
               Icons.search,
               color: AppColors.getTextColor(context),
             ),
@@ -156,7 +157,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
   Widget _buildTabBar() {
     return Container(
       height: 35,
-      color:  AppColors.getBackgroundColor(context),
+      color: AppColors.getBackgroundColor(context),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -208,7 +209,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                     ..shader = const LinearGradient(
                       colors: [Color(0xFF5691FF), Color(0xFFDE50D0)],
                     ).createShader(const Rect.fromLTWH(0, 0, 100, 20)))
-                  : (Paint()..color =  AppColors.getTextColor(context)),
+                  : (Paint()..color = AppColors.getTextColor(context)),
             ),
           ),
           const SizedBox(width: 4),
@@ -216,7 +217,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
             Icons.keyboard_arrow_down,
             color: _selectedTabIndex == 2
                 ? const Color(0xFF5691FF)
-                :  AppColors.getTextColor(context),
+                : AppColors.getTextColor(context),
             size: 18,
           ),
         ],
@@ -253,83 +254,86 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: CachedNetworkImage(
-                imageUrl: restaurant.imageUrl,
-                placeholder: (context, url) => Container(
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: CachedNetworkImage(
+                  imageUrl: restaurant.imageUrl,
+                  placeholder: (context, url) => Container(
                     width: 80,
                     height: 80,
                     color: Colors.grey[800],
                     child: const Icon(Icons.restaurant, color: Colors.white),
                   ),
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            const SizedBox(width: 9),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    restaurant.name,
-                    style: TextStyle(
-                      color: AppColors.getTextColor(context),
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  _buildStarRating(restaurant.rating),
-                  const SizedBox(height: 6),
-                  Text(
-                    restaurant.priceRange,
-                    style: TextStyle(
-                      color: AppColors.getTextColor(context),
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        restaurant.status,
-                        style: TextStyle(
-                          color: restaurant.isOpen
-                              ? const Color(0xFF3FDF6C)
-                              : Colors.red,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      restaurant.name,
+                      style: TextStyle(
+                        color: AppColors.getTextColor(context),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        restaurant.distance,
-                        style: TextStyle(
-                          color:  AppColors.getTextColor(context),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    _buildStarRating(restaurant.rating),
+                    const SizedBox(height: 6),
+                    Text(
+                      restaurant.priceRange,
+                      style: TextStyle(
+                        color: AppColors.getTextColor(context),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                            child: Text(
+                          restaurant.status,
+                          style: TextStyle(
+                            color: restaurant.isOpen
+                                ? const Color(0xFF3FDF6C)
+                                : Colors.red,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )),
+                        Text(
+                          restaurant.distance,
+                          style: TextStyle(
+                            color: AppColors.getTextColor(context),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _toggleLike(index),
-              child: Icon(
-                restaurant.isLiked ? Icons.favorite : Icons.favorite_border,
-                color: restaurant.isLiked ? Colors.red :  AppColors.getTextColor(context),
-                size: 24,
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => _toggleLike(index),
+                child: Icon(
+                  restaurant.isLiked ? Icons.favorite : Icons.favorite_border,
+                  color: restaurant.isLiked
+                      ? Colors.red
+                      : AppColors.getTextColor(context),
+                  size: 24,
+                ),
               ),
-            ),
             ],
           ),
         ),
@@ -343,9 +347,11 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         if (rating >= index + 1) {
           return const Icon(Icons.star, color: Color(0xFFFFC107), size: 12);
         } else if (rating > index) {
-          return const Icon(Icons.star_half, color: Color(0xFFFFC107), size: 12);
+          return const Icon(Icons.star_half,
+              color: Color(0xFFFFC107), size: 12);
         } else {
-          return const Icon(Icons.star_border, color: Color(0xFFFFC107), size: 12);
+          return const Icon(Icons.star_border,
+              color: Color(0xFFFFC107), size: 12);
         }
       }),
     );
@@ -415,6 +421,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
       ),
     );
   }
+
   List<RestaurantItem> _getDummyRestaurants() {
     return [
       RestaurantItem(
@@ -424,7 +431,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '3.2km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: false,
         latLong: '10.776900,106.705700',
       ),
@@ -435,7 +443,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Đóng cửa',
         isOpen: false,
         distance: '4.1km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: true,
         latLong: '10.776900,106.705700',
       ),
@@ -446,7 +455,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '5.3km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: false,
         latLong: '10.776900,106.705700',
       ),
@@ -457,7 +467,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '7.5km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: true,
         latLong: '10.776900,106.705700',
       ),
@@ -468,7 +479,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Đóng cửa',
         isOpen: false,
         distance: '8.2km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: false,
         latLong: '10.776900,106.705700',
       ),
@@ -479,7 +491,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '15km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: false,
         latLong: '10.776900,106.705700',
       ),
@@ -490,7 +503,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '3.2km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: true,
         latLong: '10.776900,106.705700',
       ),
@@ -501,7 +515,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
         status: 'Mở cửa',
         isOpen: true,
         distance: '3.2km',
-        imageUrl: 'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
+        imageUrl:
+            'https://lh3.googleusercontent.com/p/AF1QipPqC1ehip-d710CSgrg5RbRk88sVV833JGW5lzr=w408-h544-k-no',
         isLiked: false,
         latLong: '10.776900,106.705700',
       ),

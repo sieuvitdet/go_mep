@@ -4,6 +4,7 @@ import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/theme/assets.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
+import 'package:go_mep_application/main.dart';
 import 'package:go_mep_application/presentation/base/notifications/ui/notification_screen.dart';
 import 'package:go_mep_application/presentation/main/bloc/main_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -27,6 +28,9 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     _mapBloc = MapBloc(context: context);
     _mapBloc.initializeMap();
+     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      DraggableStackService().updateIsShowDraggableStack(true);
+    });
   }
 
   @override

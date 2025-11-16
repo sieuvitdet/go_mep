@@ -85,7 +85,7 @@ class ChangePasswordBloc {
     }
     if (!Utility.isPassword(confirmPassword)) {
       streamErrorPasswordNew.set(
-          "Mật khẩu xác nhận phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt");
+          "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt");
       isError = true;
     } else {
       streamErrorPasswordNew.set(null);

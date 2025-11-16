@@ -146,9 +146,9 @@ class RegisterController {
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
 
-    if (password.isNotEmpty && !_isValidPasswordFigma(password)) {
+    if (password.isNotEmpty && !Utility.isPassword(password)) {
       _passwordErrorController.add(
-        'Mật khẩu phải có 6-12 ký tự chữ hoặc số, không có ký tự đặc biệt',
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt',
       );
     } else {
       _passwordErrorController.add(null);
@@ -162,15 +162,9 @@ class RegisterController {
 
     final isValid = password.isNotEmpty &&
         confirmPassword.isNotEmpty &&
-        _isValidPasswordFigma(password) &&
+        Utility.isPassword(password) &&
         password == confirmPassword;
     _enableSubmitController.add(isValid);
-  }
-
-  bool _isValidPasswordFigma(String password) {
-    if (password.length < 6 || password.length > 12) return false;
-    final validCharsOnly = RegExp(r'^[a-zA-Z0-9]+$');
-    return validCharsOnly.hasMatch(password);
   }
 
   Future<void> submitPhoneNumber() async {
@@ -267,8 +261,8 @@ class RegisterController {
       return;
     }
 
-    if (!_isValidPasswordFigma(password)) {
-      Utility.toast('Mật khẩu phải có 6-12 ký tự chữ hoặc số');
+    if (!Utility.isPassword(password)) {
+      Utility.toast('Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ cái viết hoa, chữ cái viết thường, số và ký tự đặc biệt');
       return;
     }
 

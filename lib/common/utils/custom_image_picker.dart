@@ -30,92 +30,14 @@ class CustomImagePicker {
             CustomBottomOptionModel(
                 icon: Assets.icCameraFill,
                 iconColor: AppColors.blue,
-                text: "Chụp ảnh",
+                text: "Chọn ảnh",
                 onTap: () async {
-                  CustomNavigator.showProgressDialog(context);
-                  Uint8List? file = await pickImage(context, ImageSource.camera,
+                  Uint8List? file = await pickImage(context, ImageSource.gallery,
                       isSelfie: isSelfie);
                   if (file != null) {
-                    CustomNavigator.showProgressDialog(context);
-                    final location = await Utility.getCurrentLocation();
-                    final String numberCarText = numberCar != null
-                        ? "Số xe: $numberCar"
-                        : "Số xe: --:--";
-                    final dateTime = Utility.formatDate(DateTime.now(),
-                        format: AppFormat.dateTime);
-                    final versionName = "Version: ${Globals.config.versionName}";
-                    final watermark = "$dateTime\n$location\n$numberCarText\n$versionName";
-                    Uint8List watermarked =
-                        await ImageTextOverlay.overlayTextWithCustomFont(
-                            imageBytes: file, text: watermark);
-                    CustomNavigator.hideProgressDialog();
-                    onConfirm(watermarked);
+                    onConfirm(file);
                   }
                 }),
-            // CustomBottomOptionModel(
-            //     icon: Assets.icGalleryFill,
-            //     iconColor: AppColors.blue,
-            //     text: "Chọn từ thư viện",
-            //     onTap: () async {
-            //       CustomNavigator.showProgressDialog(context);
-            //       Uint8List? file =
-            //           await pickImage(context, ImageSource.gallery);
-            //       CustomNavigator.hideProgressDialog();
-            //       if (file != null) {
-            //         CustomNavigator.pop(context);
-            //         onConfirm(file);
-            //       }
-            //     })
-          ],
-        ));
-  }
-
-  static showMultiPicker(
-      BuildContext context, Function(List<Uint8List>)? onConfirm,
-      {bool isSelfie = false, String? numberCar}) {
-    CustomNavigator.showCustomBottomDialog(
-        context,
-        CustomBottomOption(
-          options: [
-            CustomBottomOptionModel(
-                icon: Assets.icCameraFill,
-                iconColor: AppColors.blue,
-                text: "Chụp ảnh",
-                onTap: () async {
-                  Uint8List? file = await pickImage(context, ImageSource.camera,
-                      isSelfie: isSelfie);
-                  if (file != null) {
-                    CustomNavigator.showProgressDialog(context);
-                    final location = await Utility.getCurrentLocation();
-                    final String numberCarText = numberCar != null
-                        ? "Số xe: $numberCar"
-                        : "Số xe: --:--";
-                    final dateTime = Utility.formatDate(DateTime.now(),
-                        format: AppFormat.dateTime);
-                    final versionName = "Version: ${Globals.config.versionName}";
-                    final watermark = "$dateTime\n$location\n$numberCarText\n$versionName";
-                    final watermarked =
-                        await ImageTextOverlay.overlayTextWithCustomFont(
-                            imageBytes: file, text: watermark);
-                    
-                    CustomNavigator.hideProgressDialog();
-                    onConfirm!([watermarked]);
-                  }
-                }),
-            // CustomBottomOptionModel(
-            //     icon: Assets.icGalleryFill,
-            //     iconColor: AppColors.blue,
-            //     text: "Chọn từ thư viện",
-            //     onTap: () async {
-            //       CustomNavigator.showProgressDialog(context);
-            //       List<File>? files = await pickMultiImage(context);
-            //       CustomNavigator.hideProgressDialog();
-            //       if (files != null) {
-            //         CustomNavigator.pop(context);
-            //         onConfirm!(
-            //             await Future.wait(files.map((e) => e.readAsBytes())));
-            //       }
-            //     })
           ],
         ));
   }

@@ -513,7 +513,7 @@ class MapBloc {
         polylines.add(Polyline(
           polylineId: PolylineId('waterlogging_${route.routeId}'),
           points: points,
-          color: color,
+          color: Colors.red,
           width: route.lineWidth.toInt(),
           geodesic: true,
           startCap: Cap.roundCap,

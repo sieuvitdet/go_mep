@@ -5,7 +5,9 @@ import 'package:go_mep_application/common/theme/globals/config.dart';
 import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/theme/globals/theme_provider.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
+import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
+import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/presentation/auth/splash_screen/ui/splash_screen.dart';
 import 'package:go_mep_application/data/local/database/app_database.dart';
 import 'package:go_mep_application/data/repositories/notification_repository.dart';
@@ -19,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -136,13 +139,35 @@ class _MyAppState extends State<MyApp> {
                 };
                 AppSizes.init(context);
                 return MediaQuery(
-                  data: MediaQuery.of(context)
-                      .copyWith(textScaler: TextScaler.noScaling),
-                  child: GestureDetector(
-                    onTap: Utility.hideKeyboard,
-                    child: child ?? Container(),
-                  ),
-                );
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.noScaling),
+              child: Stack(
+                children: [
+                GestureDetector(
+                  onTap: Utility.hideKeyboard,
+                  child: child ?? Container(),
+                ),
+                Builder(
+                  builder: (_) {
+                    bool isShowDraggableStack = Globals.prefs.getBool("isShowDraggableStack");
+                    return StreamBuilder(
+                        stream: DraggableStackService().isShowDraggableStack,
+                        initialData: true,
+                        builder: (_, snapshot) {
+                          if (snapshot.hasData && snapshot.data == true) {
+                            return Positioned.fill(
+                              child: DraggableStackWidget(
+                                initialDraggableOffset: Offset(AppSizes.maxWidth - 20, AppSizes.maxHeight * 0.8),
+                              ),
+                            );
+                          }
+                          return SizedBox();
+                        }
+                      );
+                  }
+                ),
+              ]),
+            );
               },
               supportedLocales: const [
                 Locale('vi'),
@@ -154,5 +179,27 @@ class _MyAppState extends State<MyApp> {
         );
       },
     );
+  }
+}
+
+
+class DraggableStackService {
+  static final DraggableStackService _instance =
+      DraggableStackService._internal();
+  factory DraggableStackService() => _instance;
+
+  DraggableStackService._internal() {
+    isShowDraggableStack = BehaviorSubject<bool?>.seeded(null);
+  }
+
+  late final BehaviorSubject<bool?> isShowDraggableStack;
+
+  void updateIsShowDraggableStack(bool isShow) {
+    // Globals.prefs.setBool("isShowDraggableStack", isShow);
+    isShowDraggableStack.set(isShow);
+  }
+
+  void dispose() {
+    isShowDraggableStack.close();
   }
 }
