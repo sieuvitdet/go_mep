@@ -8,6 +8,7 @@ import 'package:go_mep_application/data/repositories/notification_repository.dar
 import 'package:go_mep_application/data/repositories/user_repository.dart';
 import 'package:go_mep_application/data/repositories/places_repository.dart';
 import 'package:go_mep_application/data/repositories/auth_repository.dart';
+import 'package:go_mep_application/data/repositories/waterlogging_repository.dart';
 import 'package:go_mep_application/data/local/database/database_maintenance_service.dart';
 
 import 'config.dart';
@@ -30,5 +31,6 @@ class Globals {
   static UserRepository? userRepository;
   static PlacesRepository? placesRepository;
   static AuthRepository? authRepository;
+  static WaterloggingRepository? waterloggingRepository;
   static DatabaseMaintenanceService? maintenanceService;
 }

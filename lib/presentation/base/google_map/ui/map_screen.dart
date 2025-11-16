@@ -63,6 +63,7 @@ class _MapScreenState extends State<MapScreen> {
                   zoom: 13.0,
                 ),
                 markers: state.markers,
+                polylines: state.polylines,
                 myLocationEnabled: true,
                 myLocationButtonEnabled: false,
                 zoomControlsEnabled: false,

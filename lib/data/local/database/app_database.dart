@@ -7,21 +7,23 @@ import 'package:path/path.dart' as p;
 import 'tables/notifications_table.dart';
 import 'tables/users_table.dart';
 import 'tables/places_table.dart';
+import 'tables/waterlogging_table.dart';
 import 'daos/notification_dao.dart';
 import 'daos/user_dao.dart';
 import 'daos/places_dao.dart';
+import 'daos/waterlogging_dao.dart';
 
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Notifications, Users, Places],
-  daos: [NotificationDao, UserDao, PlacesDao],
+  tables: [Notifications, Users, Places, Waterloggings],
+  daos: [NotificationDao, UserDao, PlacesDao, WaterloggingDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -32,6 +34,10 @@ class AppDatabase extends _$AppDatabase {
           // Migration from version 1 to 2: Add avatar column
           if (from == 1 && to == 2) {
             await m.addColumn(users, users.avatar);
+          }
+          // Migration from version 2 to 3: Add waterlogging table
+          if (from == 2 && to == 3) {
+            await m.createTable(waterloggings);
           }
         },
       );

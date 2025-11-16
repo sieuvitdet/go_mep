@@ -1875,22 +1875,584 @@ class PlacesCompanion extends UpdateCompanion<PlaceEntity> {
   }
 }
 
+class $WaterloggingsTable extends Waterloggings
+    with TableInfo<$WaterloggingsTable, WaterloggingEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WaterloggingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _routeIdMeta =
+      const VerificationMeta('routeId');
+  @override
+  late final GeneratedColumn<int> routeId = GeneratedColumn<int>(
+      'route_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _routeNameMeta =
+      const VerificationMeta('routeName');
+  @override
+  late final GeneratedColumn<String> routeName = GeneratedColumn<String>(
+      'route_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _orderIndexMeta =
+      const VerificationMeta('orderIndex');
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+      'order_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lineColorMeta =
+      const VerificationMeta('lineColor');
+  @override
+  late final GeneratedColumn<String> lineColor = GeneratedColumn<String>(
+      'line_color', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('#2196F3'));
+  static const VerificationMeta _lineWidthMeta =
+      const VerificationMeta('lineWidth');
+  @override
+  late final GeneratedColumn<double> lineWidth = GeneratedColumn<double>(
+      'line_width', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(5.0));
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        routeId,
+        routeName,
+        latitude,
+        longitude,
+        orderIndex,
+        lineColor,
+        lineWidth,
+        description,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'waterlogging';
+  @override
+  VerificationContext validateIntegrity(Insertable<WaterloggingEntity> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('route_id')) {
+      context.handle(_routeIdMeta,
+          routeId.isAcceptableOrUnknown(data['route_id']!, _routeIdMeta));
+    } else if (isInserting) {
+      context.missing(_routeIdMeta);
+    }
+    if (data.containsKey('route_name')) {
+      context.handle(_routeNameMeta,
+          routeName.isAcceptableOrUnknown(data['route_name']!, _routeNameMeta));
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+          _orderIndexMeta,
+          orderIndex.isAcceptableOrUnknown(
+              data['order_index']!, _orderIndexMeta));
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
+    }
+    if (data.containsKey('line_color')) {
+      context.handle(_lineColorMeta,
+          lineColor.isAcceptableOrUnknown(data['line_color']!, _lineColorMeta));
+    }
+    if (data.containsKey('line_width')) {
+      context.handle(_lineWidthMeta,
+          lineWidth.isAcceptableOrUnknown(data['line_width']!, _lineWidthMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WaterloggingEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WaterloggingEntity(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      routeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}route_id'])!,
+      routeName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_name']),
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
+      orderIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}order_index'])!,
+      lineColor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}line_color'])!,
+      lineWidth: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}line_width'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $WaterloggingsTable createAlias(String alias) {
+    return $WaterloggingsTable(attachedDatabase, alias);
+  }
+}
+
+class WaterloggingEntity extends DataClass
+    implements Insertable<WaterloggingEntity> {
+  /// ID duy nhất của điểm
+  final int id;
+
+  /// ID của tuyến đường (để nhóm các điểm lại)
+  final int routeId;
+
+  /// Tên tuyến đường
+  final String? routeName;
+
+  /// Vĩ độ
+  final double latitude;
+
+  /// Kinh độ
+  final double longitude;
+
+  /// Thứ tự điểm trong tuyến đường
+  final int orderIndex;
+
+  /// Màu của polyline (hex color)
+  final String lineColor;
+
+  /// Độ dày của đường
+  final double lineWidth;
+
+  /// Mô tả
+  final String? description;
+
+  /// Thời gian tạo
+  final DateTime createdAt;
+
+  /// Thời gian cập nhật
+  final DateTime updatedAt;
+  const WaterloggingEntity(
+      {required this.id,
+      required this.routeId,
+      this.routeName,
+      required this.latitude,
+      required this.longitude,
+      required this.orderIndex,
+      required this.lineColor,
+      required this.lineWidth,
+      this.description,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['route_id'] = Variable<int>(routeId);
+    if (!nullToAbsent || routeName != null) {
+      map['route_name'] = Variable<String>(routeName);
+    }
+    map['latitude'] = Variable<double>(latitude);
+    map['longitude'] = Variable<double>(longitude);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['line_color'] = Variable<String>(lineColor);
+    map['line_width'] = Variable<double>(lineWidth);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  WaterloggingsCompanion toCompanion(bool nullToAbsent) {
+    return WaterloggingsCompanion(
+      id: Value(id),
+      routeId: Value(routeId),
+      routeName: routeName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(routeName),
+      latitude: Value(latitude),
+      longitude: Value(longitude),
+      orderIndex: Value(orderIndex),
+      lineColor: Value(lineColor),
+      lineWidth: Value(lineWidth),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory WaterloggingEntity.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WaterloggingEntity(
+      id: serializer.fromJson<int>(json['id']),
+      routeId: serializer.fromJson<int>(json['routeId']),
+      routeName: serializer.fromJson<String?>(json['routeName']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      lineColor: serializer.fromJson<String>(json['lineColor']),
+      lineWidth: serializer.fromJson<double>(json['lineWidth']),
+      description: serializer.fromJson<String?>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'routeId': serializer.toJson<int>(routeId),
+      'routeName': serializer.toJson<String?>(routeName),
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'lineColor': serializer.toJson<String>(lineColor),
+      'lineWidth': serializer.toJson<double>(lineWidth),
+      'description': serializer.toJson<String?>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  WaterloggingEntity copyWith(
+          {int? id,
+          int? routeId,
+          Value<String?> routeName = const Value.absent(),
+          double? latitude,
+          double? longitude,
+          int? orderIndex,
+          String? lineColor,
+          double? lineWidth,
+          Value<String?> description = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      WaterloggingEntity(
+        id: id ?? this.id,
+        routeId: routeId ?? this.routeId,
+        routeName: routeName.present ? routeName.value : this.routeName,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        orderIndex: orderIndex ?? this.orderIndex,
+        lineColor: lineColor ?? this.lineColor,
+        lineWidth: lineWidth ?? this.lineWidth,
+        description: description.present ? description.value : this.description,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  WaterloggingEntity copyWithCompanion(WaterloggingsCompanion data) {
+    return WaterloggingEntity(
+      id: data.id.present ? data.id.value : this.id,
+      routeId: data.routeId.present ? data.routeId.value : this.routeId,
+      routeName: data.routeName.present ? data.routeName.value : this.routeName,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      orderIndex:
+          data.orderIndex.present ? data.orderIndex.value : this.orderIndex,
+      lineColor: data.lineColor.present ? data.lineColor.value : this.lineColor,
+      lineWidth: data.lineWidth.present ? data.lineWidth.value : this.lineWidth,
+      description:
+          data.description.present ? data.description.value : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterloggingEntity(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('routeName: $routeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('lineColor: $lineColor, ')
+          ..write('lineWidth: $lineWidth, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, routeId, routeName, latitude, longitude,
+      orderIndex, lineColor, lineWidth, description, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WaterloggingEntity &&
+          other.id == this.id &&
+          other.routeId == this.routeId &&
+          other.routeName == this.routeName &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.orderIndex == this.orderIndex &&
+          other.lineColor == this.lineColor &&
+          other.lineWidth == this.lineWidth &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class WaterloggingsCompanion extends UpdateCompanion<WaterloggingEntity> {
+  final Value<int> id;
+  final Value<int> routeId;
+  final Value<String?> routeName;
+  final Value<double> latitude;
+  final Value<double> longitude;
+  final Value<int> orderIndex;
+  final Value<String> lineColor;
+  final Value<double> lineWidth;
+  final Value<String?> description;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const WaterloggingsCompanion({
+    this.id = const Value.absent(),
+    this.routeId = const Value.absent(),
+    this.routeName = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.lineColor = const Value.absent(),
+    this.lineWidth = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  WaterloggingsCompanion.insert({
+    this.id = const Value.absent(),
+    required int routeId,
+    this.routeName = const Value.absent(),
+    required double latitude,
+    required double longitude,
+    required int orderIndex,
+    this.lineColor = const Value.absent(),
+    this.lineWidth = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  })  : routeId = Value(routeId),
+        latitude = Value(latitude),
+        longitude = Value(longitude),
+        orderIndex = Value(orderIndex);
+  static Insertable<WaterloggingEntity> custom({
+    Expression<int>? id,
+    Expression<int>? routeId,
+    Expression<String>? routeName,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<int>? orderIndex,
+    Expression<String>? lineColor,
+    Expression<double>? lineWidth,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (routeId != null) 'route_id': routeId,
+      if (routeName != null) 'route_name': routeName,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (lineColor != null) 'line_color': lineColor,
+      if (lineWidth != null) 'line_width': lineWidth,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  WaterloggingsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? routeId,
+      Value<String?>? routeName,
+      Value<double>? latitude,
+      Value<double>? longitude,
+      Value<int>? orderIndex,
+      Value<String>? lineColor,
+      Value<double>? lineWidth,
+      Value<String?>? description,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return WaterloggingsCompanion(
+      id: id ?? this.id,
+      routeId: routeId ?? this.routeId,
+      routeName: routeName ?? this.routeName,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      orderIndex: orderIndex ?? this.orderIndex,
+      lineColor: lineColor ?? this.lineColor,
+      lineWidth: lineWidth ?? this.lineWidth,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (routeId.present) {
+      map['route_id'] = Variable<int>(routeId.value);
+    }
+    if (routeName.present) {
+      map['route_name'] = Variable<String>(routeName.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (lineColor.present) {
+      map['line_color'] = Variable<String>(lineColor.value);
+    }
+    if (lineWidth.present) {
+      map['line_width'] = Variable<double>(lineWidth.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WaterloggingsCompanion(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('routeName: $routeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('lineColor: $lineColor, ')
+          ..write('lineWidth: $lineWidth, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $NotificationsTable notifications = $NotificationsTable(this);
   late final $UsersTable users = $UsersTable(this);
   late final $PlacesTable places = $PlacesTable(this);
+  late final $WaterloggingsTable waterloggings = $WaterloggingsTable(this);
   late final NotificationDao notificationDao =
       NotificationDao(this as AppDatabase);
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final PlacesDao placesDao = PlacesDao(this as AppDatabase);
+  late final WaterloggingDao waterloggingDao =
+      WaterloggingDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [notifications, users, places];
+      [notifications, users, places, waterloggings];
 }
 
 typedef $$NotificationsTableCreateCompanionBuilder = NotificationsCompanion
@@ -2739,6 +3301,263 @@ typedef $$PlacesTableProcessedTableManager = ProcessedTableManager<
     (PlaceEntity, BaseReferences<_$AppDatabase, $PlacesTable, PlaceEntity>),
     PlaceEntity,
     PrefetchHooks Function()>;
+typedef $$WaterloggingsTableCreateCompanionBuilder = WaterloggingsCompanion
+    Function({
+  Value<int> id,
+  required int routeId,
+  Value<String?> routeName,
+  required double latitude,
+  required double longitude,
+  required int orderIndex,
+  Value<String> lineColor,
+  Value<double> lineWidth,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+typedef $$WaterloggingsTableUpdateCompanionBuilder = WaterloggingsCompanion
+    Function({
+  Value<int> id,
+  Value<int> routeId,
+  Value<String?> routeName,
+  Value<double> latitude,
+  Value<double> longitude,
+  Value<int> orderIndex,
+  Value<String> lineColor,
+  Value<double> lineWidth,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+class $$WaterloggingsTableFilterComposer
+    extends Composer<_$AppDatabase, $WaterloggingsTable> {
+  $$WaterloggingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get routeName => $composableBuilder(
+      column: $table.routeName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lineColor => $composableBuilder(
+      column: $table.lineColor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lineWidth => $composableBuilder(
+      column: $table.lineWidth, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$WaterloggingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $WaterloggingsTable> {
+  $$WaterloggingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get routeName => $composableBuilder(
+      column: $table.routeName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lineColor => $composableBuilder(
+      column: $table.lineColor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lineWidth => $composableBuilder(
+      column: $table.lineWidth, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$WaterloggingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WaterloggingsTable> {
+  $$WaterloggingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get routeId =>
+      $composableBuilder(column: $table.routeId, builder: (column) => column);
+
+  GeneratedColumn<String> get routeName =>
+      $composableBuilder(column: $table.routeName, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get lineColor =>
+      $composableBuilder(column: $table.lineColor, builder: (column) => column);
+
+  GeneratedColumn<double> get lineWidth =>
+      $composableBuilder(column: $table.lineWidth, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$WaterloggingsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $WaterloggingsTable,
+    WaterloggingEntity,
+    $$WaterloggingsTableFilterComposer,
+    $$WaterloggingsTableOrderingComposer,
+    $$WaterloggingsTableAnnotationComposer,
+    $$WaterloggingsTableCreateCompanionBuilder,
+    $$WaterloggingsTableUpdateCompanionBuilder,
+    (
+      WaterloggingEntity,
+      BaseReferences<_$AppDatabase, $WaterloggingsTable, WaterloggingEntity>
+    ),
+    WaterloggingEntity,
+    PrefetchHooks Function()> {
+  $$WaterloggingsTableTableManager(_$AppDatabase db, $WaterloggingsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WaterloggingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WaterloggingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WaterloggingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> routeId = const Value.absent(),
+            Value<String?> routeName = const Value.absent(),
+            Value<double> latitude = const Value.absent(),
+            Value<double> longitude = const Value.absent(),
+            Value<int> orderIndex = const Value.absent(),
+            Value<String> lineColor = const Value.absent(),
+            Value<double> lineWidth = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              WaterloggingsCompanion(
+            id: id,
+            routeId: routeId,
+            routeName: routeName,
+            latitude: latitude,
+            longitude: longitude,
+            orderIndex: orderIndex,
+            lineColor: lineColor,
+            lineWidth: lineWidth,
+            description: description,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int routeId,
+            Value<String?> routeName = const Value.absent(),
+            required double latitude,
+            required double longitude,
+            required int orderIndex,
+            Value<String> lineColor = const Value.absent(),
+            Value<double> lineWidth = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              WaterloggingsCompanion.insert(
+            id: id,
+            routeId: routeId,
+            routeName: routeName,
+            latitude: latitude,
+            longitude: longitude,
+            orderIndex: orderIndex,
+            lineColor: lineColor,
+            lineWidth: lineWidth,
+            description: description,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$WaterloggingsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $WaterloggingsTable,
+    WaterloggingEntity,
+    $$WaterloggingsTableFilterComposer,
+    $$WaterloggingsTableOrderingComposer,
+    $$WaterloggingsTableAnnotationComposer,
+    $$WaterloggingsTableCreateCompanionBuilder,
+    $$WaterloggingsTableUpdateCompanionBuilder,
+    (
+      WaterloggingEntity,
+      BaseReferences<_$AppDatabase, $WaterloggingsTable, WaterloggingEntity>
+    ),
+    WaterloggingEntity,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2749,4 +3568,6 @@ class $AppDatabaseManager {
       $$UsersTableTableManager(_db, _db.users);
   $$PlacesTableTableManager get places =>
       $$PlacesTableTableManager(_db, _db.places);
+  $$WaterloggingsTableTableManager get waterloggings =>
+      $$WaterloggingsTableTableManager(_db, _db.waterloggings);
 }

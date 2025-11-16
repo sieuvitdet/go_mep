@@ -15,6 +15,7 @@ enum MapMode { restaurant, taxi }
 
 class MapState {
   final Set<Marker> markers;
+  final Set<Polyline> polylines;
   final String? selectedMarkerId;
   final MapMode mapMode;
   final RestaurantData? selectedRestaurant;
@@ -25,6 +26,7 @@ class MapState {
 
   MapState({
     required this.markers,
+    this.polylines = const {},
     this.selectedMarkerId,
     required this.mapMode,
     this.selectedRestaurant,
@@ -36,6 +38,7 @@ class MapState {
 
   MapState copyWith({
     Set<Marker>? markers,
+    Set<Polyline>? polylines,
     String? selectedMarkerId,
     MapMode? mapMode,
     RestaurantData? selectedRestaurant,
@@ -47,6 +50,7 @@ class MapState {
   }) {
     return MapState(
       markers: markers ?? this.markers,
+      polylines: polylines ?? this.polylines,
       selectedMarkerId: clearSelection ? null : (selectedMarkerId ?? this.selectedMarkerId),
       mapMode: mapMode ?? this.mapMode,
       selectedRestaurant: clearSelection ? null : (selectedRestaurant ?? this.selectedRestaurant),
@@ -167,7 +171,7 @@ class MapBloc {
     _stateController.close();
   }
 
-  /// Initialize map with cached places
+  /// Initialize map with cached places and waterlogging routes
   Future<void> initializeMap() async {
     _stateController.add(currentState.copyWith(isLoading: true));
 
@@ -175,10 +179,14 @@ class MapBloc {
       // Load from cache first
       await _loadPlacesFromCache();
 
+      // Load waterlogging routes and create polylines
+      final polylines = await _loadWaterloggingPolylines();
+
       // Create markers
       final markers = await _createMarkers(currentState.mapMode);
       _stateController.add(currentState.copyWith(
         markers: markers,
+        polylines: polylines,
         isLoading: false,
       ));
 
@@ -479,5 +487,61 @@ class MapBloc {
       debugPrint('❌ Error loading nearby places: $e');
       _stateController.add(currentState.copyWith(isLoading: false));
     }
+  }
+
+  /// Load waterlogging routes and create polylines
+  Future<Set<Polyline>> _loadWaterloggingPolylines() async {
+    final repository = Globals.waterloggingRepository;
+    if (repository == null) {
+      debugPrint('❌ WaterloggingRepository not initialized');
+      return {};
+    }
+
+    try {
+      final routes = await repository.getAllRoutes();
+      final Set<Polyline> polylines = {};
+
+      for (var route in routes) {
+        // Convert WaterloggingPoint to LatLng
+        final points = route.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+
+        // Parse color from hex string (e.g., '#2196F3')
+        final color = _parseHexColor(route.lineColor);
+
+        polylines.add(Polyline(
+          polylineId: PolylineId('waterlogging_${route.routeId}'),
+          points: points,
+          color: color,
+          width: route.lineWidth.toInt(),
+          geodesic: true,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+        ));
+      }
+
+      debugPrint('✅ Loaded ${polylines.length} waterlogging polylines');
+      return polylines;
+    } catch (e) {
+      debugPrint('❌ Error loading waterlogging polylines: $e');
+      return {};
+    }
+  }
+
+  /// Parse hex color string to Color
+  Color _parseHexColor(String hexColor) {
+    try {
+      final hex = hexColor.replaceAll('#', '');
+      if (hex.length == 6) {
+        return Color(int.parse('FF$hex', radix: 16));
+      } else if (hex.length == 8) {
+        return Color(int.parse(hex, radix: 16));
+      }
+    } catch (e) {
+      debugPrint('❌ Error parsing color $hexColor: $e');
+    }
+    // Default to blue
+    return const Color(0xFF2196F3);
   }
 }
