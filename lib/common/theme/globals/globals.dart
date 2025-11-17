@@ -9,7 +9,10 @@ import 'package:go_mep_application/data/repositories/user_repository.dart';
 import 'package:go_mep_application/data/repositories/places_repository.dart';
 import 'package:go_mep_application/data/repositories/auth_repository.dart';
 import 'package:go_mep_application/data/repositories/waterlogging_repository.dart';
+import 'package:go_mep_application/data/repositories/traffic_jam_repository.dart';
+import 'package:go_mep_application/data/repositories/temporary_report_marker_repository.dart';
 import 'package:go_mep_application/data/local/database/database_maintenance_service.dart';
+import 'package:go_mep_application/data/services/temporary_marker_cleanup_service.dart';
 
 import 'config.dart';
 
@@ -32,5 +35,8 @@ class Globals {
   static PlacesRepository? placesRepository;
   static AuthRepository? authRepository;
   static WaterloggingRepository? waterloggingRepository;
+  static TrafficJamRepository? trafficJamRepository;
+  static TemporaryReportMarkerRepository? temporaryReportMarkerRepository;
   static DatabaseMaintenanceService? maintenanceService;
+  static TemporaryMarkerCleanupService? temporaryMarkerCleanupService;
 }

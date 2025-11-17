@@ -7,6 +7,7 @@ import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/gps_utils.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
 import 'package:go_mep_application/data/model/res/places_search_res_model.dart';
+import 'package:go_mep_application/data/model/res/temporary_report_marker_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -179,13 +180,27 @@ class MapBloc {
       // Load from cache first
       await _loadPlacesFromCache();
 
-      // Load waterlogging routes and create polylines
-      final polylines = await _loadWaterloggingPolylines();
+      // Load waterlogging and traffic jam routes and create polylines
+      final waterloggingPolylines = await _loadWaterloggingPolylines();
+      final trafficJamPolylines = await _loadTrafficJamPolylines();
 
-      // Create markers
+      // Combine all polylines
+      final polylines = <Polyline>{
+        ...waterloggingPolylines,
+        ...trafficJamPolylines,
+      };
+
+      // Create markers (including temporary report markers)
       final markers = await _createMarkers(currentState.mapMode);
+      final temporaryMarkers = await _loadTemporaryReportMarkers();
+
+      final allMarkers = <Marker>{
+        ...markers,
+        ...temporaryMarkers,
+      };
+
       _stateController.add(currentState.copyWith(
-        markers: markers,
+        markers: allMarkers,
         polylines: polylines,
         isLoading: false,
       ));
@@ -525,6 +540,96 @@ class MapBloc {
       return polylines;
     } catch (e) {
       debugPrint('❌ Error loading waterlogging polylines: $e');
+      return {};
+    }
+  }
+
+  /// Load traffic jam routes and create polylines
+  Future<Set<Polyline>> _loadTrafficJamPolylines() async {
+    final repository = Globals.trafficJamRepository;
+    if (repository == null) {
+      debugPrint('❌ TrafficJamRepository not initialized');
+      return {};
+    }
+
+    try {
+      final routes = await repository.getAllRoutes();
+      final Set<Polyline> polylines = {};
+
+      for (var route in routes) {
+        // Convert TrafficJamPoint to LatLng
+        final points = route.points
+            .map((point) => LatLng(point.latitude, point.longitude))
+            .toList();
+
+        // Parse color from hex string (e.g., '#FF5722')
+        final color = _parseHexColor(route.lineColor);
+
+        polylines.add(Polyline(
+          polylineId: PolylineId('traffic_jam_${route.routeId}'),
+          points: points,
+          color: color,
+          width: route.lineWidth.toInt(),
+          geodesic: true,
+          startCap: Cap.roundCap,
+          endCap: Cap.roundCap,
+        ));
+      }
+
+      debugPrint('✅ Loaded ${polylines.length} traffic jam polylines');
+      return polylines;
+    } catch (e) {
+      debugPrint('❌ Error loading traffic jam polylines: $e');
+      return {};
+    }
+  }
+
+  /// Load temporary report markers (auto-expire after 1 hour)
+  Future<Set<Marker>> _loadTemporaryReportMarkers() async {
+    final repository = Globals.temporaryReportMarkerRepository;
+    if (repository == null) {
+      debugPrint('❌ TemporaryReportMarkerRepository not initialized');
+      return {};
+    }
+
+    try {
+      final markers = await repository.getAllActiveMarkers();
+      final Set<Marker> mapMarkers = {};
+
+      for (var reportMarker in markers) {
+        // Choose icon based on report type
+        BitmapDescriptor icon;
+        switch (reportMarker.reportType) {
+          case ReportType.trafficJam:
+            icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange);
+            break;
+          case ReportType.waterlogging:
+            icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
+            break;
+          case ReportType.accident:
+            icon = BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed);
+            break;
+        }
+
+        mapMarkers.add(Marker(
+          markerId: MarkerId('temp_report_${reportMarker.id}'),
+          position: LatLng(reportMarker.latitude, reportMarker.longitude),
+          icon: icon,
+          infoWindow: InfoWindow(
+            title: reportMarker.reportType.displayName,
+            snippet: reportMarker.description ??
+                     'Báo cáo ${reportMarker.formattedRemainingTime} trước',
+          ),
+          onTap: () {
+            debugPrint('Tapped report marker: ${reportMarker.reportType.displayName}');
+          },
+        ));
+      }
+
+      debugPrint('✅ Loaded ${mapMarkers.length} temporary report markers');
+      return mapMarkers;
+    } catch (e) {
+      debugPrint('❌ Error loading temporary report markers: $e');
       return {};
     }
   }

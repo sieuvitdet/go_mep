@@ -15,7 +15,10 @@ import 'package:go_mep_application/data/repositories/user_repository.dart';
 import 'package:go_mep_application/data/repositories/places_repository.dart';
 import 'package:go_mep_application/data/repositories/auth_repository.dart';
 import 'package:go_mep_application/data/repositories/waterlogging_repository.dart';
+import 'package:go_mep_application/data/repositories/traffic_jam_repository.dart';
+import 'package:go_mep_application/data/repositories/temporary_report_marker_repository.dart';
 import 'package:go_mep_application/data/local/database/database_maintenance_service.dart';
+import 'package:go_mep_application/data/services/temporary_marker_cleanup_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -64,6 +67,8 @@ Future<void> _initializeDatabase() async {
     final placesRepo = PlacesRepository(placesDao);
     final authRepo = AuthRepository(userDao);
     final waterloggingRepo = WaterloggingRepository(database);
+    final trafficJamRepo = TrafficJamRepository(database);
+    final temporaryReportMarkerRepo = TemporaryReportMarkerRepository(database);
 
     final maintenanceService = DatabaseMaintenanceService(
       database: database,
@@ -72,17 +77,26 @@ Future<void> _initializeDatabase() async {
       placesRepo: placesRepo,
     );
 
+    final temporaryMarkerCleanupService = TemporaryMarkerCleanupService(
+      repository: temporaryReportMarkerRepo,
+    );
+
     Globals.database = database;
     Globals.notificationRepository = notificationRepo;
     Globals.userRepository = userRepo;
     Globals.placesRepository = placesRepo;
     Globals.authRepository = authRepo;
     Globals.waterloggingRepository = waterloggingRepo;
+    Globals.trafficJamRepository = trafficJamRepo;
+    Globals.temporaryReportMarkerRepository = temporaryReportMarkerRepo;
     Globals.maintenanceService = maintenanceService;
+    Globals.temporaryMarkerCleanupService = temporaryMarkerCleanupService;
 
     await authRepo.seedDefaultUser();
     await waterloggingRepo.initializeSampleData();
+    await trafficJamRepo.initializeSampleData();
     maintenanceService.schedulePeriodicMaintenance();
+    temporaryMarkerCleanupService.start(); // Start auto-cleanup service
     debugPrint('✅ Database initialized successfully');
   } catch (e) {
     debugPrint('❌ Failed to initialize database: $e');
