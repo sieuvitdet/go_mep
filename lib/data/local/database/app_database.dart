@@ -8,22 +8,26 @@ import 'tables/notifications_table.dart';
 import 'tables/users_table.dart';
 import 'tables/places_table.dart';
 import 'tables/waterlogging_table.dart';
+import 'tables/traffic_jam_table.dart';
+import 'tables/temporary_report_marker_table.dart';
 import 'daos/notification_dao.dart';
 import 'daos/user_dao.dart';
 import 'daos/places_dao.dart';
 import 'daos/waterlogging_dao.dart';
+import 'daos/traffic_jam_dao.dart';
+import 'daos/temporary_report_marker_dao.dart';
 
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Notifications, Users, Places, Waterloggings],
-  daos: [NotificationDao, UserDao, PlacesDao, WaterloggingDao],
+  tables: [Notifications, Users, Places, Waterloggings, TrafficJams, TemporaryReportMarkers],
+  daos: [NotificationDao, UserDao, PlacesDao, WaterloggingDao, TrafficJamDao, TemporaryReportMarkerDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -38,6 +42,14 @@ class AppDatabase extends _$AppDatabase {
           // Migration from version 2 to 3: Add waterlogging table
           if (from == 2 && to == 3) {
             await m.createTable(waterloggings);
+          }
+          // Migration from version 3 to 4: Add traffic jam table
+          if (from == 3 && to == 4) {
+            await m.createTable(trafficJams);
+          }
+          // Migration from version 4 to 5: Add temporary report markers table
+          if (from == 4 && to == 5) {
+            await m.createTable(temporaryReportMarkers);
           }
         },
       );

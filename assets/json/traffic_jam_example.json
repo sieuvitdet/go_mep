@@ -1,0 +1,41 @@
+[
+  {
+    "routeId": 1,
+    "routeName": "Tắc Đường Trần Hưng Đạo",
+    "lineColor": "#FF5722",
+    "lineWidth": 6.0,
+    "description": "Tuyến đường thường xuyên bị tắc nghẽn giờ cao điểm",
+    "points": [
+      "10.737973, 106.730258",
+      "10.738234, 106.731456",
+      "10.738891, 106.732012",
+      "10.739456, 106.732789"
+    ]
+  },
+  {
+    "routeId": 2,
+    "routeName": "Tắc Đường Nguyễn Huệ",
+    "lineColor": "#F44336",
+    "lineWidth": 7.0,
+    "description": "Khu vực trung tâm, tắc nghẽn nghiêm trọng",
+    "points": [
+      "10.740123, 106.729456",
+      "10.740789, 106.730123",
+      "10.741234, 106.730891",
+      "10.741890, 106.731567",
+      "10.742345, 106.732234"
+    ]
+  },
+  {
+    "routeId": 3,
+    "routeName": "Tắc Đường Võ Văn Tần",
+    "lineColor": "#E91E63",
+    "lineWidth": 5.0,
+    "description": "Tuyến đường tắc nghẽn vào buổi sáng",
+    "points": [
+      "10.735678, 106.728901",
+      "10.736123, 106.729567",
+      "10.736789, 106.730234"
+    ]
+  }
+]
