@@ -43,6 +43,11 @@
 	<string>Chúng tôi cần truy cập thư viện ảnh của bạn để cho phép bạn chọn ảnh tải lên.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

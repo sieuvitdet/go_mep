@@ -27,7 +27,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,21 +35,34 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // Migration from version 1 to 2: Add avatar column
-          if (from == 1 && to == 2) {
-            await m.addColumn(users, users.avatar);
-          }
-          // Migration from version 2 to 3: Add waterlogging table
-          if (from == 2 && to == 3) {
-            await m.createTable(waterloggings);
-          }
-          // Migration from version 3 to 4: Add traffic jam table
-          if (from == 3 && to == 4) {
-            await m.createTable(trafficJams);
-          }
-          // Migration from version 4 to 5: Add temporary report markers table
-          if (from == 4 && to == 5) {
-            await m.createTable(temporaryReportMarkers);
+          // Run all migrations sequentially
+          for (var version = from; version < to; version++) {
+            switch (version) {
+              case 1:
+                // Migration to version 2: Add avatar column
+                await m.addColumn(users, users.avatar);
+                break;
+              case 2:
+                // Migration to version 3: Add waterlogging table
+                await m.createTable(waterloggings);
+                break;
+              case 3:
+                // Migration to version 4: Add traffic jam table
+                await m.createTable(trafficJams);
+                break;
+              case 4:
+                // Migration to version 5: Add temporary report markers table
+                await m.createTable(temporaryReportMarkers);
+                break;
+              case 5:
+                // Migration to version 6: Ensure temporary report markers table exists
+                try {
+                  await m.createTable(temporaryReportMarkers);
+                } catch (e) {
+                  // Table already exists, ignore
+                }
+                break;
+            }
           }
         },
       );

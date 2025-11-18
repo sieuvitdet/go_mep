@@ -137,3 +137,108 @@ app.*.symbols
 
 # Planning documents
 plans/
+
+# OpenCode and other AI tools
+.opencode/
+.cursor/
+.aider/
+.continue/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Environment and secrets
+.env
+.env.*
+*.env
+.envrc
+secrets/
+*.secret
+*.pem
+*.key
+*.crt
+*.p12
+*.keystore
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Test and coverage
+.test/
+test-results/
+*.lcov
+
+# Documentation generated
+docs/api/
+documentation/
+
+# Repomix output
+repomix-output.*
+.repomixignore
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# APK and IPA files (release builds)
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Crashlytics
+crashlytics-build.properties
+fabric.properties

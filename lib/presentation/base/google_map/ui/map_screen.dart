@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/theme/assets.dart';
+import 'package:go_mep_application/common/theme/globals/globals.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/widgets/widget.dart';
+import 'package:go_mep_application/data/model/res/notification_res_model.dart';
+import 'package:go_mep_application/data/model/res/temporary_report_marker_model.dart';
 import 'package:go_mep_application/main.dart';
 import 'package:go_mep_application/presentation/base/notifications/ui/notification_screen.dart';
 import 'package:go_mep_application/presentation/main/bloc/main_bloc.dart';
@@ -43,6 +46,108 @@ class _MapScreenState extends State<MapScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapBloc.mapController = controller;
+  }
+
+  /// Create report marker and add notification
+  Future<void> _createReportMarker(ReportType reportType) async {
+    // Show loading
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Đang lấy vị trí...'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+    try {
+      final repository = Globals.temporaryReportMarkerRepository;
+      if (repository == null) {
+        _showErrorSnackBar('Lỗi: Repository chưa được khởi tạo');
+        return;
+      }
+
+      // Create marker at current location
+      final marker = await repository.createReportAtCurrentLocation(
+        reportType: reportType,
+        description: 'Báo cáo từ người dùng',
+      );
+
+      // Add notification to News tab
+      await _addReportNotification(reportType, marker.latitude, marker.longitude);
+
+      // Show local push notification
+      await Globals.localNotificationService?.showReportSuccessNotification(
+        reportType: reportType.displayName,
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+      );
+
+      // Refresh map to show new marker
+      await _mapBloc.initializeMap();
+
+      // Success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Đã báo cáo ${reportType.displayName} thành công!\n'
+            'Marker sẽ tự động ẩn sau 1 tiếng.',
+          ),
+          duration: const Duration(seconds: 3),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      debugPrint('✅ Created report marker: ${marker.toString()}');
+    } catch (e) {
+      debugPrint('❌ Error creating report marker: $e');
+      String errorMessage = 'Lỗi: Không thể lấy vị trí.';
+      if (e.toString().contains('GPS') || e.toString().contains('vị trí')) {
+        errorMessage = e.toString().replaceAll('Exception: ', '');
+      } else if (e.toString().contains('denied')) {
+        errorMessage = 'Vui lòng cấp quyền truy cập vị trí cho ứng dụng.';
+      }
+      _showErrorSnackBar(errorMessage);
+    }
+  }
+
+  /// Add notification after creating report
+  Future<void> _addReportNotification(ReportType reportType, double lat, double lng) async {
+    try {
+      final notificationRepo = Globals.notificationRepository;
+      if (notificationRepo == null) {
+        debugPrint('❌ NotificationRepository not initialized');
+        return;
+      }
+
+      final now = DateTime.now();
+      final notification = NotificationData(
+        id: 'report_${now.millisecondsSinceEpoch}',
+        userId: 'local_user',
+        notificationId: now.millisecondsSinceEpoch.toString(),
+        title: 'Báo cáo ${reportType.displayName}',
+        content: 'Bạn đã báo cáo ${reportType.displayName} tại vị trí ($lat, $lng). '
+                 'Thông tin sẽ tự động xóa sau 1 tiếng.',
+        isRead: false,
+        createAt: now,
+        type: 'report',
+        priority: 'normal',
+      );
+
+      await notificationRepo.cacheNotifications([notification]);
+      debugPrint('✅ Added report notification');
+    } catch (e) {
+      debugPrint('❌ Error adding notification: $e');
+    }
+  }
+
+  /// Show error snackbar
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -185,10 +290,10 @@ class _MapScreenState extends State<MapScreen> {
                   bottom: 12,
                   right: 26,
                   child: Column(children: [
-                    // Restaurant Mode Button
+                    // Waterlogging Report Button (car_fill)
                     GestureDetector(
                       onTap: () {
-                        _mapBloc.changeMapMode(MapMode.restaurant);
+                        _createReportMarker(ReportType.waterlogging);
                       },
                       child: Container(
                         width: 48,
@@ -196,12 +301,12 @@ class _MapScreenState extends State<MapScreen> {
                         decoration: BoxDecoration(
                           color: state.mapMode == MapMode.taxi
                               ? Colors.white
-                              : Color(0xFF3478F6),
+                              : const Color(0xFF3478F6),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.black, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -216,7 +321,7 @@ class _MapScreenState extends State<MapScreen> {
                               'assets/icons/car_fill.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: ColorFilter.mode(
+                              colorFilter: const ColorFilter.mode(
                                 Colors.black,
                                 BlendMode.srcIn,
                               ),
@@ -237,9 +342,10 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    // Traffic Jam Report Button (local_taxi)
                     GestureDetector(
                       onTap: () {
-                        _mapBloc.changeMapMode(MapMode.taxi);
+                        _createReportMarker(ReportType.trafficJam);
                       },
                       child: Container(
                           width: 48,
@@ -252,7 +358,7 @@ class _MapScreenState extends State<MapScreen> {
                             border: Border.all(color: Colors.black, width: 3),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),

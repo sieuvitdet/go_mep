@@ -316,9 +316,15 @@ class MapBloc {
               .map((place) => RestaurantData.fromPlaceModel(place))
               .toList();
 
-          // Update with API results
+          // Update _allRestaurants with search results to show markers on map
+          _allRestaurants = apiResults;
+          final markers = await _createMarkers(currentState.mapMode);
+          final temporaryMarkers = await _loadTemporaryReportMarkers();
+
+          // Update with API results and markers
           _stateController.add(currentState.copyWith(
             searchResults: apiResults,
+            markers: {...markers, ...temporaryMarkers},
             isSearching: false,
           ));
 
@@ -523,12 +529,12 @@ class MapBloc {
             .toList();
 
         // Parse color from hex string (e.g., '#2196F3')
-        final color = _parseHexColor(route.lineColor);
+        final parsedColor = _parseHexColor(route.lineColor);
 
         polylines.add(Polyline(
           polylineId: PolylineId('waterlogging_${route.routeId}'),
           points: points,
-          color: Colors.red,
+          color: parsedColor,
           width: route.lineWidth.toInt(),
           geodesic: true,
           startCap: Cap.roundCap,

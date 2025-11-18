@@ -2434,6 +2434,1020 @@ class WaterloggingsCompanion extends UpdateCompanion<WaterloggingEntity> {
   }
 }
 
+class $TrafficJamsTable extends TrafficJams
+    with TableInfo<$TrafficJamsTable, TrafficJamEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TrafficJamsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _routeIdMeta =
+      const VerificationMeta('routeId');
+  @override
+  late final GeneratedColumn<int> routeId = GeneratedColumn<int>(
+      'route_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _routeNameMeta =
+      const VerificationMeta('routeName');
+  @override
+  late final GeneratedColumn<String> routeName = GeneratedColumn<String>(
+      'route_name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _orderIndexMeta =
+      const VerificationMeta('orderIndex');
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+      'order_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lineColorMeta =
+      const VerificationMeta('lineColor');
+  @override
+  late final GeneratedColumn<String> lineColor = GeneratedColumn<String>(
+      'line_color', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 7, maxTextLength: 9),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('#FF5722'));
+  static const VerificationMeta _lineWidthMeta =
+      const VerificationMeta('lineWidth');
+  @override
+  late final GeneratedColumn<double> lineWidth = GeneratedColumn<double>(
+      'line_width', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(5.0));
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        routeId,
+        routeName,
+        latitude,
+        longitude,
+        orderIndex,
+        lineColor,
+        lineWidth,
+        description,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'traffic_jam';
+  @override
+  VerificationContext validateIntegrity(Insertable<TrafficJamEntity> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('route_id')) {
+      context.handle(_routeIdMeta,
+          routeId.isAcceptableOrUnknown(data['route_id']!, _routeIdMeta));
+    } else if (isInserting) {
+      context.missing(_routeIdMeta);
+    }
+    if (data.containsKey('route_name')) {
+      context.handle(_routeNameMeta,
+          routeName.isAcceptableOrUnknown(data['route_name']!, _routeNameMeta));
+    } else if (isInserting) {
+      context.missing(_routeNameMeta);
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+          _orderIndexMeta,
+          orderIndex.isAcceptableOrUnknown(
+              data['order_index']!, _orderIndexMeta));
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
+    }
+    if (data.containsKey('line_color')) {
+      context.handle(_lineColorMeta,
+          lineColor.isAcceptableOrUnknown(data['line_color']!, _lineColorMeta));
+    }
+    if (data.containsKey('line_width')) {
+      context.handle(_lineWidthMeta,
+          lineWidth.isAcceptableOrUnknown(data['line_width']!, _lineWidthMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TrafficJamEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TrafficJamEntity(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      routeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}route_id'])!,
+      routeName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_name'])!,
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
+      orderIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}order_index'])!,
+      lineColor: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}line_color'])!,
+      lineWidth: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}line_width'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $TrafficJamsTable createAlias(String alias) {
+    return $TrafficJamsTable(attachedDatabase, alias);
+  }
+}
+
+class TrafficJamEntity extends DataClass
+    implements Insertable<TrafficJamEntity> {
+  /// Auto-incrementing primary key
+  final int id;
+
+  /// Route identifier - groups points belonging to the same route
+  final int routeId;
+
+  /// Display name of the route
+  final String routeName;
+
+  /// Latitude coordinate
+  final double latitude;
+
+  /// Longitude coordinate
+  final double longitude;
+
+  /// Order of the point in the route (for drawing polyline correctly)
+  final int orderIndex;
+
+  /// Hex color code for the polyline (e.g., '#FF5722')
+  final String lineColor;
+
+  /// Width of the polyline
+  final double lineWidth;
+
+  /// Optional description of the route
+  final String? description;
+
+  /// Timestamp when the record was created
+  final DateTime createdAt;
+
+  /// Timestamp when the record was last updated
+  final DateTime updatedAt;
+  const TrafficJamEntity(
+      {required this.id,
+      required this.routeId,
+      required this.routeName,
+      required this.latitude,
+      required this.longitude,
+      required this.orderIndex,
+      required this.lineColor,
+      required this.lineWidth,
+      this.description,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['route_id'] = Variable<int>(routeId);
+    map['route_name'] = Variable<String>(routeName);
+    map['latitude'] = Variable<double>(latitude);
+    map['longitude'] = Variable<double>(longitude);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['line_color'] = Variable<String>(lineColor);
+    map['line_width'] = Variable<double>(lineWidth);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  TrafficJamsCompanion toCompanion(bool nullToAbsent) {
+    return TrafficJamsCompanion(
+      id: Value(id),
+      routeId: Value(routeId),
+      routeName: Value(routeName),
+      latitude: Value(latitude),
+      longitude: Value(longitude),
+      orderIndex: Value(orderIndex),
+      lineColor: Value(lineColor),
+      lineWidth: Value(lineWidth),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory TrafficJamEntity.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TrafficJamEntity(
+      id: serializer.fromJson<int>(json['id']),
+      routeId: serializer.fromJson<int>(json['routeId']),
+      routeName: serializer.fromJson<String>(json['routeName']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      lineColor: serializer.fromJson<String>(json['lineColor']),
+      lineWidth: serializer.fromJson<double>(json['lineWidth']),
+      description: serializer.fromJson<String?>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'routeId': serializer.toJson<int>(routeId),
+      'routeName': serializer.toJson<String>(routeName),
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'lineColor': serializer.toJson<String>(lineColor),
+      'lineWidth': serializer.toJson<double>(lineWidth),
+      'description': serializer.toJson<String?>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  TrafficJamEntity copyWith(
+          {int? id,
+          int? routeId,
+          String? routeName,
+          double? latitude,
+          double? longitude,
+          int? orderIndex,
+          String? lineColor,
+          double? lineWidth,
+          Value<String?> description = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      TrafficJamEntity(
+        id: id ?? this.id,
+        routeId: routeId ?? this.routeId,
+        routeName: routeName ?? this.routeName,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        orderIndex: orderIndex ?? this.orderIndex,
+        lineColor: lineColor ?? this.lineColor,
+        lineWidth: lineWidth ?? this.lineWidth,
+        description: description.present ? description.value : this.description,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  TrafficJamEntity copyWithCompanion(TrafficJamsCompanion data) {
+    return TrafficJamEntity(
+      id: data.id.present ? data.id.value : this.id,
+      routeId: data.routeId.present ? data.routeId.value : this.routeId,
+      routeName: data.routeName.present ? data.routeName.value : this.routeName,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      orderIndex:
+          data.orderIndex.present ? data.orderIndex.value : this.orderIndex,
+      lineColor: data.lineColor.present ? data.lineColor.value : this.lineColor,
+      lineWidth: data.lineWidth.present ? data.lineWidth.value : this.lineWidth,
+      description:
+          data.description.present ? data.description.value : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrafficJamEntity(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('routeName: $routeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('lineColor: $lineColor, ')
+          ..write('lineWidth: $lineWidth, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, routeId, routeName, latitude, longitude,
+      orderIndex, lineColor, lineWidth, description, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TrafficJamEntity &&
+          other.id == this.id &&
+          other.routeId == this.routeId &&
+          other.routeName == this.routeName &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.orderIndex == this.orderIndex &&
+          other.lineColor == this.lineColor &&
+          other.lineWidth == this.lineWidth &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class TrafficJamsCompanion extends UpdateCompanion<TrafficJamEntity> {
+  final Value<int> id;
+  final Value<int> routeId;
+  final Value<String> routeName;
+  final Value<double> latitude;
+  final Value<double> longitude;
+  final Value<int> orderIndex;
+  final Value<String> lineColor;
+  final Value<double> lineWidth;
+  final Value<String?> description;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const TrafficJamsCompanion({
+    this.id = const Value.absent(),
+    this.routeId = const Value.absent(),
+    this.routeName = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.lineColor = const Value.absent(),
+    this.lineWidth = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  TrafficJamsCompanion.insert({
+    this.id = const Value.absent(),
+    required int routeId,
+    required String routeName,
+    required double latitude,
+    required double longitude,
+    required int orderIndex,
+    this.lineColor = const Value.absent(),
+    this.lineWidth = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  })  : routeId = Value(routeId),
+        routeName = Value(routeName),
+        latitude = Value(latitude),
+        longitude = Value(longitude),
+        orderIndex = Value(orderIndex);
+  static Insertable<TrafficJamEntity> custom({
+    Expression<int>? id,
+    Expression<int>? routeId,
+    Expression<String>? routeName,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<int>? orderIndex,
+    Expression<String>? lineColor,
+    Expression<double>? lineWidth,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (routeId != null) 'route_id': routeId,
+      if (routeName != null) 'route_name': routeName,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (lineColor != null) 'line_color': lineColor,
+      if (lineWidth != null) 'line_width': lineWidth,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  TrafficJamsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? routeId,
+      Value<String>? routeName,
+      Value<double>? latitude,
+      Value<double>? longitude,
+      Value<int>? orderIndex,
+      Value<String>? lineColor,
+      Value<double>? lineWidth,
+      Value<String?>? description,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt}) {
+    return TrafficJamsCompanion(
+      id: id ?? this.id,
+      routeId: routeId ?? this.routeId,
+      routeName: routeName ?? this.routeName,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      orderIndex: orderIndex ?? this.orderIndex,
+      lineColor: lineColor ?? this.lineColor,
+      lineWidth: lineWidth ?? this.lineWidth,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (routeId.present) {
+      map['route_id'] = Variable<int>(routeId.value);
+    }
+    if (routeName.present) {
+      map['route_name'] = Variable<String>(routeName.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (lineColor.present) {
+      map['line_color'] = Variable<String>(lineColor.value);
+    }
+    if (lineWidth.present) {
+      map['line_width'] = Variable<double>(lineWidth.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TrafficJamsCompanion(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('routeName: $routeName, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('lineColor: $lineColor, ')
+          ..write('lineWidth: $lineWidth, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TemporaryReportMarkersTable extends TemporaryReportMarkers
+    with TableInfo<$TemporaryReportMarkersTable, TemporaryReportMarkerEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TemporaryReportMarkersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _reportTypeMeta =
+      const VerificationMeta('reportType');
+  @override
+  late final GeneratedColumn<int> reportType = GeneratedColumn<int>(
+      'report_type', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _expiresAtMeta =
+      const VerificationMeta('expiresAt');
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+      'expires_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _userReportedByMeta =
+      const VerificationMeta('userReportedBy');
+  @override
+  late final GeneratedColumn<String> userReportedBy = GeneratedColumn<String>(
+      'user_reported_by', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        reportType,
+        latitude,
+        longitude,
+        description,
+        createdAt,
+        expiresAt,
+        userReportedBy
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'temporary_report_markers';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<TemporaryReportMarkerEntity> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('report_type')) {
+      context.handle(
+          _reportTypeMeta,
+          reportType.isAcceptableOrUnknown(
+              data['report_type']!, _reportTypeMeta));
+    } else if (isInserting) {
+      context.missing(_reportTypeMeta);
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(_expiresAtMeta,
+          expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta));
+    } else if (isInserting) {
+      context.missing(_expiresAtMeta);
+    }
+    if (data.containsKey('user_reported_by')) {
+      context.handle(
+          _userReportedByMeta,
+          userReportedBy.isAcceptableOrUnknown(
+              data['user_reported_by']!, _userReportedByMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TemporaryReportMarkerEntity map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TemporaryReportMarkerEntity(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      reportType: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}report_type'])!,
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      expiresAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}expires_at'])!,
+      userReportedBy: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}user_reported_by']),
+    );
+  }
+
+  @override
+  $TemporaryReportMarkersTable createAlias(String alias) {
+    return $TemporaryReportMarkersTable(attachedDatabase, alias);
+  }
+}
+
+class TemporaryReportMarkerEntity extends DataClass
+    implements Insertable<TemporaryReportMarkerEntity> {
+  /// Auto-incrementing primary key
+  final int id;
+
+  /// Type of report: 0=trafficJam, 1=waterlogging, 2=accident
+  final int reportType;
+
+  /// Latitude coordinate
+  final double latitude;
+
+  /// Longitude coordinate
+  final double longitude;
+
+  /// Optional description of the report
+  final String? description;
+
+  /// Timestamp when the marker was created
+  final DateTime createdAt;
+
+  /// Timestamp when the marker expires and should be removed
+  final DateTime expiresAt;
+
+  /// Optional user ID who reported this
+  final String? userReportedBy;
+  const TemporaryReportMarkerEntity(
+      {required this.id,
+      required this.reportType,
+      required this.latitude,
+      required this.longitude,
+      this.description,
+      required this.createdAt,
+      required this.expiresAt,
+      this.userReportedBy});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['report_type'] = Variable<int>(reportType);
+    map['latitude'] = Variable<double>(latitude);
+    map['longitude'] = Variable<double>(longitude);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['expires_at'] = Variable<DateTime>(expiresAt);
+    if (!nullToAbsent || userReportedBy != null) {
+      map['user_reported_by'] = Variable<String>(userReportedBy);
+    }
+    return map;
+  }
+
+  TemporaryReportMarkersCompanion toCompanion(bool nullToAbsent) {
+    return TemporaryReportMarkersCompanion(
+      id: Value(id),
+      reportType: Value(reportType),
+      latitude: Value(latitude),
+      longitude: Value(longitude),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      createdAt: Value(createdAt),
+      expiresAt: Value(expiresAt),
+      userReportedBy: userReportedBy == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userReportedBy),
+    );
+  }
+
+  factory TemporaryReportMarkerEntity.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TemporaryReportMarkerEntity(
+      id: serializer.fromJson<int>(json['id']),
+      reportType: serializer.fromJson<int>(json['reportType']),
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      description: serializer.fromJson<String?>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      expiresAt: serializer.fromJson<DateTime>(json['expiresAt']),
+      userReportedBy: serializer.fromJson<String?>(json['userReportedBy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'reportType': serializer.toJson<int>(reportType),
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
+      'description': serializer.toJson<String?>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'expiresAt': serializer.toJson<DateTime>(expiresAt),
+      'userReportedBy': serializer.toJson<String?>(userReportedBy),
+    };
+  }
+
+  TemporaryReportMarkerEntity copyWith(
+          {int? id,
+          int? reportType,
+          double? latitude,
+          double? longitude,
+          Value<String?> description = const Value.absent(),
+          DateTime? createdAt,
+          DateTime? expiresAt,
+          Value<String?> userReportedBy = const Value.absent()}) =>
+      TemporaryReportMarkerEntity(
+        id: id ?? this.id,
+        reportType: reportType ?? this.reportType,
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        description: description.present ? description.value : this.description,
+        createdAt: createdAt ?? this.createdAt,
+        expiresAt: expiresAt ?? this.expiresAt,
+        userReportedBy:
+            userReportedBy.present ? userReportedBy.value : this.userReportedBy,
+      );
+  TemporaryReportMarkerEntity copyWithCompanion(
+      TemporaryReportMarkersCompanion data) {
+    return TemporaryReportMarkerEntity(
+      id: data.id.present ? data.id.value : this.id,
+      reportType:
+          data.reportType.present ? data.reportType.value : this.reportType,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      description:
+          data.description.present ? data.description.value : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+      userReportedBy: data.userReportedBy.present
+          ? data.userReportedBy.value
+          : this.userReportedBy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TemporaryReportMarkerEntity(')
+          ..write('id: $id, ')
+          ..write('reportType: $reportType, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('userReportedBy: $userReportedBy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, reportType, latitude, longitude,
+      description, createdAt, expiresAt, userReportedBy);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TemporaryReportMarkerEntity &&
+          other.id == this.id &&
+          other.reportType == this.reportType &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.expiresAt == this.expiresAt &&
+          other.userReportedBy == this.userReportedBy);
+}
+
+class TemporaryReportMarkersCompanion
+    extends UpdateCompanion<TemporaryReportMarkerEntity> {
+  final Value<int> id;
+  final Value<int> reportType;
+  final Value<double> latitude;
+  final Value<double> longitude;
+  final Value<String?> description;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> expiresAt;
+  final Value<String?> userReportedBy;
+  const TemporaryReportMarkersCompanion({
+    this.id = const Value.absent(),
+    this.reportType = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+    this.userReportedBy = const Value.absent(),
+  });
+  TemporaryReportMarkersCompanion.insert({
+    this.id = const Value.absent(),
+    required int reportType,
+    required double latitude,
+    required double longitude,
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    required DateTime expiresAt,
+    this.userReportedBy = const Value.absent(),
+  })  : reportType = Value(reportType),
+        latitude = Value(latitude),
+        longitude = Value(longitude),
+        expiresAt = Value(expiresAt);
+  static Insertable<TemporaryReportMarkerEntity> custom({
+    Expression<int>? id,
+    Expression<int>? reportType,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? expiresAt,
+    Expression<String>? userReportedBy,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (reportType != null) 'report_type': reportType,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+      if (userReportedBy != null) 'user_reported_by': userReportedBy,
+    });
+  }
+
+  TemporaryReportMarkersCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? reportType,
+      Value<double>? latitude,
+      Value<double>? longitude,
+      Value<String?>? description,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? expiresAt,
+      Value<String?>? userReportedBy}) {
+    return TemporaryReportMarkersCompanion(
+      id: id ?? this.id,
+      reportType: reportType ?? this.reportType,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+      userReportedBy: userReportedBy ?? this.userReportedBy,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (reportType.present) {
+      map['report_type'] = Variable<int>(reportType.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    if (userReportedBy.present) {
+      map['user_reported_by'] = Variable<String>(userReportedBy.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TemporaryReportMarkersCompanion(')
+          ..write('id: $id, ')
+          ..write('reportType: $reportType, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('expiresAt: $expiresAt, ')
+          ..write('userReportedBy: $userReportedBy')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2441,18 +3455,30 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UsersTable users = $UsersTable(this);
   late final $PlacesTable places = $PlacesTable(this);
   late final $WaterloggingsTable waterloggings = $WaterloggingsTable(this);
+  late final $TrafficJamsTable trafficJams = $TrafficJamsTable(this);
+  late final $TemporaryReportMarkersTable temporaryReportMarkers =
+      $TemporaryReportMarkersTable(this);
   late final NotificationDao notificationDao =
       NotificationDao(this as AppDatabase);
   late final UserDao userDao = UserDao(this as AppDatabase);
   late final PlacesDao placesDao = PlacesDao(this as AppDatabase);
   late final WaterloggingDao waterloggingDao =
       WaterloggingDao(this as AppDatabase);
+  late final TrafficJamDao trafficJamDao = TrafficJamDao(this as AppDatabase);
+  late final TemporaryReportMarkerDao temporaryReportMarkerDao =
+      TemporaryReportMarkerDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [notifications, users, places, waterloggings];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        notifications,
+        users,
+        places,
+        waterloggings,
+        trafficJams,
+        temporaryReportMarkers
+      ];
 }
 
 typedef $$NotificationsTableCreateCompanionBuilder = NotificationsCompanion
@@ -3558,6 +4584,484 @@ typedef $$WaterloggingsTableProcessedTableManager = ProcessedTableManager<
     ),
     WaterloggingEntity,
     PrefetchHooks Function()>;
+typedef $$TrafficJamsTableCreateCompanionBuilder = TrafficJamsCompanion
+    Function({
+  Value<int> id,
+  required int routeId,
+  required String routeName,
+  required double latitude,
+  required double longitude,
+  required int orderIndex,
+  Value<String> lineColor,
+  Value<double> lineWidth,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+typedef $$TrafficJamsTableUpdateCompanionBuilder = TrafficJamsCompanion
+    Function({
+  Value<int> id,
+  Value<int> routeId,
+  Value<String> routeName,
+  Value<double> latitude,
+  Value<double> longitude,
+  Value<int> orderIndex,
+  Value<String> lineColor,
+  Value<double> lineWidth,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+class $$TrafficJamsTableFilterComposer
+    extends Composer<_$AppDatabase, $TrafficJamsTable> {
+  $$TrafficJamsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get routeName => $composableBuilder(
+      column: $table.routeName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lineColor => $composableBuilder(
+      column: $table.lineColor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lineWidth => $composableBuilder(
+      column: $table.lineWidth, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TrafficJamsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TrafficJamsTable> {
+  $$TrafficJamsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get routeName => $composableBuilder(
+      column: $table.routeName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lineColor => $composableBuilder(
+      column: $table.lineColor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lineWidth => $composableBuilder(
+      column: $table.lineWidth, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TrafficJamsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TrafficJamsTable> {
+  $$TrafficJamsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get routeId =>
+      $composableBuilder(column: $table.routeId, builder: (column) => column);
+
+  GeneratedColumn<String> get routeName =>
+      $composableBuilder(column: $table.routeName, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+      column: $table.orderIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get lineColor =>
+      $composableBuilder(column: $table.lineColor, builder: (column) => column);
+
+  GeneratedColumn<double> get lineWidth =>
+      $composableBuilder(column: $table.lineWidth, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$TrafficJamsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TrafficJamsTable,
+    TrafficJamEntity,
+    $$TrafficJamsTableFilterComposer,
+    $$TrafficJamsTableOrderingComposer,
+    $$TrafficJamsTableAnnotationComposer,
+    $$TrafficJamsTableCreateCompanionBuilder,
+    $$TrafficJamsTableUpdateCompanionBuilder,
+    (
+      TrafficJamEntity,
+      BaseReferences<_$AppDatabase, $TrafficJamsTable, TrafficJamEntity>
+    ),
+    TrafficJamEntity,
+    PrefetchHooks Function()> {
+  $$TrafficJamsTableTableManager(_$AppDatabase db, $TrafficJamsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TrafficJamsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TrafficJamsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TrafficJamsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> routeId = const Value.absent(),
+            Value<String> routeName = const Value.absent(),
+            Value<double> latitude = const Value.absent(),
+            Value<double> longitude = const Value.absent(),
+            Value<int> orderIndex = const Value.absent(),
+            Value<String> lineColor = const Value.absent(),
+            Value<double> lineWidth = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              TrafficJamsCompanion(
+            id: id,
+            routeId: routeId,
+            routeName: routeName,
+            latitude: latitude,
+            longitude: longitude,
+            orderIndex: orderIndex,
+            lineColor: lineColor,
+            lineWidth: lineWidth,
+            description: description,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int routeId,
+            required String routeName,
+            required double latitude,
+            required double longitude,
+            required int orderIndex,
+            Value<String> lineColor = const Value.absent(),
+            Value<double> lineWidth = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+          }) =>
+              TrafficJamsCompanion.insert(
+            id: id,
+            routeId: routeId,
+            routeName: routeName,
+            latitude: latitude,
+            longitude: longitude,
+            orderIndex: orderIndex,
+            lineColor: lineColor,
+            lineWidth: lineWidth,
+            description: description,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TrafficJamsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TrafficJamsTable,
+    TrafficJamEntity,
+    $$TrafficJamsTableFilterComposer,
+    $$TrafficJamsTableOrderingComposer,
+    $$TrafficJamsTableAnnotationComposer,
+    $$TrafficJamsTableCreateCompanionBuilder,
+    $$TrafficJamsTableUpdateCompanionBuilder,
+    (
+      TrafficJamEntity,
+      BaseReferences<_$AppDatabase, $TrafficJamsTable, TrafficJamEntity>
+    ),
+    TrafficJamEntity,
+    PrefetchHooks Function()>;
+typedef $$TemporaryReportMarkersTableCreateCompanionBuilder
+    = TemporaryReportMarkersCompanion Function({
+  Value<int> id,
+  required int reportType,
+  required double latitude,
+  required double longitude,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  required DateTime expiresAt,
+  Value<String?> userReportedBy,
+});
+typedef $$TemporaryReportMarkersTableUpdateCompanionBuilder
+    = TemporaryReportMarkersCompanion Function({
+  Value<int> id,
+  Value<int> reportType,
+  Value<double> latitude,
+  Value<double> longitude,
+  Value<String?> description,
+  Value<DateTime> createdAt,
+  Value<DateTime> expiresAt,
+  Value<String?> userReportedBy,
+});
+
+class $$TemporaryReportMarkersTableFilterComposer
+    extends Composer<_$AppDatabase, $TemporaryReportMarkersTable> {
+  $$TemporaryReportMarkersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get reportType => $composableBuilder(
+      column: $table.reportType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+      column: $table.expiresAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userReportedBy => $composableBuilder(
+      column: $table.userReportedBy,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$TemporaryReportMarkersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TemporaryReportMarkersTable> {
+  $$TemporaryReportMarkersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get reportType => $composableBuilder(
+      column: $table.reportType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+      column: $table.expiresAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userReportedBy => $composableBuilder(
+      column: $table.userReportedBy,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$TemporaryReportMarkersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TemporaryReportMarkersTable> {
+  $$TemporaryReportMarkersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get reportType => $composableBuilder(
+      column: $table.reportType, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+
+  GeneratedColumn<String> get userReportedBy => $composableBuilder(
+      column: $table.userReportedBy, builder: (column) => column);
+}
+
+class $$TemporaryReportMarkersTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TemporaryReportMarkersTable,
+    TemporaryReportMarkerEntity,
+    $$TemporaryReportMarkersTableFilterComposer,
+    $$TemporaryReportMarkersTableOrderingComposer,
+    $$TemporaryReportMarkersTableAnnotationComposer,
+    $$TemporaryReportMarkersTableCreateCompanionBuilder,
+    $$TemporaryReportMarkersTableUpdateCompanionBuilder,
+    (
+      TemporaryReportMarkerEntity,
+      BaseReferences<_$AppDatabase, $TemporaryReportMarkersTable,
+          TemporaryReportMarkerEntity>
+    ),
+    TemporaryReportMarkerEntity,
+    PrefetchHooks Function()> {
+  $$TemporaryReportMarkersTableTableManager(
+      _$AppDatabase db, $TemporaryReportMarkersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TemporaryReportMarkersTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TemporaryReportMarkersTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TemporaryReportMarkersTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> reportType = const Value.absent(),
+            Value<double> latitude = const Value.absent(),
+            Value<double> longitude = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> expiresAt = const Value.absent(),
+            Value<String?> userReportedBy = const Value.absent(),
+          }) =>
+              TemporaryReportMarkersCompanion(
+            id: id,
+            reportType: reportType,
+            latitude: latitude,
+            longitude: longitude,
+            description: description,
+            createdAt: createdAt,
+            expiresAt: expiresAt,
+            userReportedBy: userReportedBy,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int reportType,
+            required double latitude,
+            required double longitude,
+            Value<String?> description = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            required DateTime expiresAt,
+            Value<String?> userReportedBy = const Value.absent(),
+          }) =>
+              TemporaryReportMarkersCompanion.insert(
+            id: id,
+            reportType: reportType,
+            latitude: latitude,
+            longitude: longitude,
+            description: description,
+            createdAt: createdAt,
+            expiresAt: expiresAt,
+            userReportedBy: userReportedBy,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TemporaryReportMarkersTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDatabase,
+        $TemporaryReportMarkersTable,
+        TemporaryReportMarkerEntity,
+        $$TemporaryReportMarkersTableFilterComposer,
+        $$TemporaryReportMarkersTableOrderingComposer,
+        $$TemporaryReportMarkersTableAnnotationComposer,
+        $$TemporaryReportMarkersTableCreateCompanionBuilder,
+        $$TemporaryReportMarkersTableUpdateCompanionBuilder,
+        (
+          TemporaryReportMarkerEntity,
+          BaseReferences<_$AppDatabase, $TemporaryReportMarkersTable,
+              TemporaryReportMarkerEntity>
+        ),
+        TemporaryReportMarkerEntity,
+        PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3570,4 +5074,9 @@ class $AppDatabaseManager {
       $$PlacesTableTableManager(_db, _db.places);
   $$WaterloggingsTableTableManager get waterloggings =>
       $$WaterloggingsTableTableManager(_db, _db.waterloggings);
+  $$TrafficJamsTableTableManager get trafficJams =>
+      $$TrafficJamsTableTableManager(_db, _db.trafficJams);
+  $$TemporaryReportMarkersTableTableManager get temporaryReportMarkers =>
+      $$TemporaryReportMarkersTableTableManager(
+          _db, _db.temporaryReportMarkers);
 }

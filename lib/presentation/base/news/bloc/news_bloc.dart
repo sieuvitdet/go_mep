@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:go_mep_application/common/theme/globals/globals.dart';
+import 'package:go_mep_application/data/model/res/temporary_report_marker_model.dart';
 import '../models/news_model.dart';
 
 // States
@@ -35,100 +37,96 @@ class NewsController {
   Future<void> loadNews() async {
     _newsStreamController.add(NewsLoading());
     try {
-      await Future.delayed(const Duration(seconds: 1));
+      // Load reports from database
+      final reportNews = await _loadReportsFromDatabase();
 
-      final mockNews = [
-        NewsModel(
-          id: '1',
-          userId: 'current_user',
-          userName: 'Tôi',
-          content: 'Đã đăng thông tin cảnh báo kẹt xe ở địa điểm 15 Huỳnh Tấn Phát phường Tân Thuận Tây, quận 7, thành phố Hồ Chí Minh.',
-          type: NewsType.trafficJam,
-          createdAt: DateTime.now().subtract(const Duration(minutes: 29)),
-          likedBy: ['user1', 'user2', 'Khanh Trần'],
-          comments: List.generate(
-            10,
-            (index) => CommentModel(
-              id: 'comment_$index',
-              userId: 'user_$index',
-              userName: 'User $index',
-              content: 'Bình luận số $index',
-              createdAt: DateTime.now().subtract(Duration(minutes: index)),
-              isMyComment: index == 0,
-            ),
-          ),
-          isMyPost: true,
-        ),
-        NewsModel(
-          id: '2',
-          userId: 'user2',
-          userName: 'Trần Đức Duy',
-          content: 'Đã đăng thông tin cảnh báo ngập ở địa điểm 15 Huỳnh Tấn Phát phường Tân Thuận Tây, quận 7, thành phố Hồ Chí Minh.',
-          type: NewsType.flood,
-          createdAt: DateTime.parse('2024-07-13 19:07:00'),
-          likedBy: ['current_user', 'user1', 'user3', 'Khanh Trần'],
-          comments: List.generate(
-            10,
-            (index) => CommentModel(
-              id: 'comment2_$index',
-              userId: 'user2_$index',
-              userName: 'User Comment $index',
-              content: 'Bình luận cho bài viết 2 - số $index',
-              createdAt: DateTime.now().subtract(Duration(minutes: index * 2)),
-              isMyComment: false,
-            ),
-          ),
-          isMyPost: false,
-        ),
-        NewsModel(
-          id: '2',
-          userId: 'user2',
-          userName: 'Trần Đức Duy',
-          content: 'Đã đăng thông tin cảnh báo ngập ở địa điểm 15 Huỳnh Tấn Phát phường Tân Thuận Tây, quận 7, thành phố Hồ Chí Minh.',
-          type: NewsType.flood,
-          createdAt: DateTime.parse('2024-07-13 19:07:00'),
-          likedBy: ['current_user', 'user1', 'user3', 'Khanh Trần'],
-          comments: List.generate(
-            10,
-            (index) => CommentModel(
-              id: 'comment2_$index',
-              userId: 'user2_$index',
-              userName: 'User Comment $index',
-              content: 'Bình luận cho bài viết 2 - số $index',
-              createdAt: DateTime.now().subtract(Duration(minutes: index * 2)),
-              isMyComment: false,
-            ),
-          ),
-          isMyPost: false,
-        ),
-        NewsModel(
-          id: '2',
-          userId: 'user2',
-          userName: 'Trần Đức Duy',
-          content: 'Đã đăng thông tin cảnh báo ngập ở địa điểm 15 Huỳnh Tấn Phát phường Tân Thuận Tây, quận 7, thành phố Hồ Chí Minh.',
-          type: NewsType.flood,
-          createdAt: DateTime.parse('2024-07-13 19:07:00'),
-          likedBy: ['current_user', 'user1', 'user3', 'Khanh Trần'],
-          comments: List.generate(
-            10,
-            (index) => CommentModel(
-              id: 'comment2_$index',
-              userId: 'user2_$index',
-              userName: 'User Comment $index',
-              content: 'Bình luận cho bài viết 2 - số $index',
-              createdAt: DateTime.now().subtract(Duration(minutes: index * 2)),
-              isMyComment: false,
-            ),
-          ),
-          isMyPost: false,
-        ),
-      ];
+      // Sort by createdAt descending (newest first)
+      reportNews.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-      _newsList = mockNews;
+      _newsList = reportNews;
       _newsStreamController.add(NewsLoaded(newsList: _newsList));
     } catch (e) {
       _newsStreamController.add(NewsError(message: e.toString()));
     }
+  }
+
+  /// Load reports from temporary_report_markers table
+  Future<List<NewsModel>> _loadReportsFromDatabase() async {
+    final repository = Globals.temporaryReportMarkerRepository;
+    if (repository == null) {
+      return [];
+    }
+
+    try {
+      final markers = await repository.getAllActiveMarkers();
+
+      return markers.map((marker) {
+        // Convert ReportType to NewsType
+        NewsType newsType;
+        switch (marker.reportType) {
+          case ReportType.trafficJam:
+            newsType = NewsType.trafficJam;
+            break;
+          case ReportType.waterlogging:
+            newsType = NewsType.flood;
+            break;
+          case ReportType.accident:
+            newsType = NewsType.accident;
+            break;
+        }
+
+        return NewsModel(
+          id: 'report_${marker.id}',
+          userId: marker.userReportedBy ?? 'current_user',
+          userName: 'Tôi',
+          content: 'Đã báo cáo ${marker.reportType.displayName} tại vị trí '
+                   '(${marker.latitude.toStringAsFixed(6)}, ${marker.longitude.toStringAsFixed(6)}). '
+                   '${marker.description ?? ''}\n'
+                   'Còn lại: ${marker.formattedRemainingTime}',
+          type: newsType,
+          createdAt: marker.createdAt,
+          likedBy: [],
+          comments: [],
+          isMyPost: true,
+        );
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// Add a new report to the news list
+  void addReport(TemporaryReportMarkerModel marker) {
+    NewsType newsType;
+    switch (marker.reportType) {
+      case ReportType.trafficJam:
+        newsType = NewsType.trafficJam;
+        break;
+      case ReportType.waterlogging:
+        newsType = NewsType.flood;
+        break;
+      case ReportType.accident:
+        newsType = NewsType.accident;
+        break;
+    }
+
+    final newNews = NewsModel(
+      id: 'report_${marker.id}',
+      userId: marker.userReportedBy ?? 'current_user',
+      userName: 'Tôi',
+      content: 'Đã báo cáo ${marker.reportType.displayName} tại vị trí '
+               '(${marker.latitude.toStringAsFixed(6)}, ${marker.longitude.toStringAsFixed(6)}). '
+               '${marker.description ?? ''}\n'
+               'Còn lại: ${marker.formattedRemainingTime}',
+      type: newsType,
+      createdAt: marker.createdAt,
+      likedBy: [],
+      comments: [],
+      isMyPost: true,
+    );
+
+    _newsList.insert(0, newNews);
+    _newsStreamController.add(NewsLoaded(newsList: _newsList));
   }
 
   void toggleLike(String newsId, String currentUserId) {

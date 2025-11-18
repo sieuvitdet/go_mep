@@ -117,7 +117,9 @@ class TemporaryReportMarkerRepository {
     // Check if location service is enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      throw Exception('Location services are disabled.');
+      // Try to open location settings
+      await Geolocator.openLocationSettings();
+      throw Exception('Vui lòng bật dịch vụ vị trí (GPS)');
     }
 
     // Check location permission
@@ -125,18 +127,23 @@ class TemporaryReportMarkerRepository {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permissions are denied');
+        throw Exception('Quyền truy cập vị trí bị từ chối');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
+      // Open app settings so user can grant permission
+      await Geolocator.openAppSettings();
       throw Exception(
-          'Location permissions are permanently denied, cannot request permissions.');
+          'Quyền truy cập vị trí bị từ chối vĩnh viễn. Vui lòng cấp quyền trong Cài đặt.');
     }
 
-    // Get current position
+    // Get current position with new LocationSettings API
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 10),
+      ),
     );
   }
 
