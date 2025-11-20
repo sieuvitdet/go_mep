@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_mep_application/data/local/database/app_database.dart';
 import 'package:go_mep_application/data/model/res/waterlogging_route_model.dart';
 
@@ -102,7 +104,7 @@ class WaterloggingRepository {
     return _database.waterloggingDao.watchAllRoutes();
   }
 
-  /// Khởi tạo dữ liệu mẫu (nếu chưa có)
+  /// Khởi tạo dữ liệu mẫu từ JSON file (nếu chưa có)
   Future<void> initializeSampleData() async {
     try {
       final count = await countRoutes();
@@ -111,53 +113,28 @@ class WaterloggingRepository {
         return;
       }
 
-      debugPrint('🔄 Initializing sample waterlogging data...');
+      debugPrint('🔄 Initializing sample waterlogging data from JSON...');
 
-      final sampleRoutes = [
-        // Route 1
-        WaterloggingRouteModel(
-          routeId: 1,
-          routeName: 'Đường Ngập 1',
-          lineColor: '#2196F3', // Xanh dương
-          lineWidth: 5.0,
-          description: 'Tuyến đường ngập úng khu vực 1',
-          points: [
-            WaterloggingPoint.fromString('10.737973, 106.730258', 0),
-            WaterloggingPoint.fromString('10.738552, 106.730162', 1),
-            WaterloggingPoint.fromString('10.740218, 106.729893', 2),
-            WaterloggingPoint.fromString('10.741664, 106.729700', 3),
-            WaterloggingPoint.fromString('10.743178, 106.729481', 4),
-          ],
-        ),
-        // Route 2
-        WaterloggingRouteModel(
-          routeId: 2,
-          routeName: 'Đường Ngập 2',
-          lineColor: '#2196F3', // Xanh dương
-          lineWidth: 5.0,
-          description: 'Tuyến đường ngập úng khu vực 2',
-          points: [
-            WaterloggingPoint.fromString('10.752841, 106.733050', 0),
-            WaterloggingPoint.fromString('10.753125, 106.739303', 1),
-            WaterloggingPoint.fromString('10.753597, 106.741035', 2),
-          ],
-        ),
-        // Route 3
-        WaterloggingRouteModel(
-          routeId: 3,
-          routeName: 'Đường Ngập 3',
-          lineColor: '#2196F3', // Xanh dương
-          lineWidth: 5.0,
-          description: 'Tuyến đường ngập úng khu vực 3',
-          points: [
-            WaterloggingPoint.fromString('10.755865, 106.721266', 0),
-            WaterloggingPoint.fromString('10.753904, 106.720087', 1),
-            WaterloggingPoint.fromString('10.753125, 106.719534', 2),
-            WaterloggingPoint.fromString('10.752227, 106.717995', 3),
-            WaterloggingPoint.fromString('10.751872, 106.713594', 4),
-          ],
-        ),
-      ];
+      // Load JSON from assets
+      final jsonString = await rootBundle.loadString('assets/json/traffic_jam_example.json');
+      final List<dynamic> jsonList = json.decode(jsonString);
+
+      // Parse JSON to WaterloggingRouteModel
+      final sampleRoutes = jsonList.map((jsonItem) {
+        final List<String> pointStrings = (jsonItem['points'] as List<dynamic>).cast<String>();
+        final points = pointStrings.asMap().entries.map((entry) {
+          return WaterloggingPoint.fromString(entry.value, entry.key);
+        }).toList();
+
+        return WaterloggingRouteModel(
+          routeId: jsonItem['routeId'] as int,
+          routeName: jsonItem['routeName'] as String,
+          lineColor: jsonItem['lineColor'] as String,
+          lineWidth: (jsonItem['lineWidth'] as num).toDouble(),
+          description: jsonItem['description'] as String,
+          points: points,
+        );
+      }).toList();
 
       await addRoutes(sampleRoutes);
       debugPrint('✅ Sample waterlogging data initialized: ${sampleRoutes.length} routes');

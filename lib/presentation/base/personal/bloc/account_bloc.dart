@@ -6,40 +6,54 @@ import 'package:go_mep_application/common/utils/custom_navigator.dart';
 import 'package:go_mep_application/common/utils/custom_image_picker.dart';
 import 'package:go_mep_application/common/utils/utility.dart';
 import 'package:go_mep_application/common/widgets/dialogs/gomep_loading_dialog.dart';
-import 'package:go_mep_application/data/model/req/update_profile_req_model.dart';
 import 'package:go_mep_application/data/model/res/user_me_res_model.dart';
 import 'package:go_mep_application/main.dart';
-import 'package:go_mep_application/net/api/interaction.dart';
-import 'package:go_mep_application/net/repository/repository.dart';
 import 'package:go_mep_application/presentation/auth/login/ui/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class AccountBloc {
   late BuildContext context;
-  UserMeResModel? _currentUser;
-  
+
   AccountBloc(BuildContext context) {
     this.context = context;
     _loadingController.add(false);
   }
 
-  final _userInfoController = StreamController<UserMeResModel?>.broadcast();
+  // Stream controllers
+  final _userInfoController = StreamController<UserMeResModel>.broadcast();
   final _loadingController = StreamController<bool>.broadcast();
 
-  Stream<UserMeResModel?> get userInfoStream => _userInfoController.stream;
+  // Streams
+  Stream<UserMeResModel> get userInfoStream => _userInfoController.stream;
   Stream<bool> get loadingStream => _loadingController.stream;
 
-  void setUserInfo(UserMeResModel? user) {
+  // Current user cache
+  UserMeResModel? _currentUser;
+  UserMeResModel? get currentUser => _currentUser;
+
+  // Pending avatar (not yet saved)
+  String? _pendingAvatar;
+  String? get pendingAvatar => _pendingAvatar;
+
+  void setPendingAvatar(String? avatar) {
+    _pendingAvatar = avatar;
+  }
+
+  void clearPendingAvatar() {
+    _pendingAvatar = null;
+  }
+
+  /// Initialize with user data
+  void setUserInfo(UserMeResModel user) {
     _currentUser = user;
     _userInfoController.add(user);
   }
 
+  /// Logout user
   Future<void> onLogOut(BuildContext context) async {
     _loadingController.add(true);
     GoMepLoadingDialog.show(context);
     await Future.delayed(const Duration(seconds: 1));
-
-    // await Repository.logout(context);
 
     GoMepLoadingDialog.hide(context);
     _loadingController.add(false);
@@ -49,91 +63,71 @@ class AccountBloc {
     CustomNavigator.popToRootAndPushReplacement(context, LoginScreen());
   }
 
-  Future<bool> updateProfile({
+  /// Update user profile - saves to local database only
+  Future<UserMeResModel?> updateProfile({
     required String fullName,
     required String dateOfBirth,
     required String address,
   }) async {
+    if (_currentUser == null) return null;
+
     _loadingController.add(true);
     GoMepLoadingDialog.show(context);
 
-    UpdateProfileReqModel model = UpdateProfileReqModel(
-      fullName: fullName,
-      dateOfBirth: dateOfBirth,
-      address: address,
-    );
+    try {
+      // Update current user with new values
+      _currentUser!.fullName = fullName;
+      _currentUser!.dateOfBirth = dateOfBirth;
+      _currentUser!.address = address;
 
-    ResponseModel responseModel = await Repository.updateProfile(context, model);
-
-    GoMepLoadingDialog.hide(context);
-    _loadingController.add(false);
-
-    if (responseModel.success ?? false) {
-      // Cập nhật lại thông tin user sau khi update thành công
-      if (responseModel.result != null && _currentUser != null) {
-        final data = responseModel.result as Map<String, dynamic>;
-        final updatedFields = data['updated_fields'] as Map<String, dynamic>?;
-
-        if (updatedFields != null) {
-          // Chỉ update 3 field mới từ response
-          _currentUser!.fullName = updatedFields['full_name'];
-          _currentUser!.dateOfBirth = updatedFields['date_of_birth'];
-          _currentUser!.address = updatedFields['address'];
-
-          // Set lại user info với các field đã được update
-          setUserInfo(_currentUser);
-        }
+      // Apply pending avatar if exists
+      if (_pendingAvatar != null) {
+        _currentUser!.avatar = _pendingAvatar;
+        _pendingAvatar = null;
       }
-      return true;
+
+      // Save to local database
+      await Globals.userRepository?.cacheUser(_currentUser!);
+
+      // Emit updated user to stream
+      _userInfoController.add(_currentUser!);
+
+      GoMepLoadingDialog.hide(context);
+      _loadingController.add(false);
+
+      return _currentUser;
+    } catch (e) {
+      debugPrint('Error updating profile: $e');
+      GoMepLoadingDialog.hide(context);
+      _loadingController.add(false);
+      return null;
     }
-    return false;
   }
 
-  /// Upload avatar and update user profile
-  Future<bool> uploadAvatar(Uint8List imageBytes) async {
+  /// Set pending avatar (not saved until updateProfile is called)
+  String? setAvatarFromBytes(Uint8List imageBytes) {
     try {
-      _loadingController.add(true);
-      GoMepLoadingDialog.show(context);
-
       // Convert image to base64
       final base64Image = base64Encode(imageBytes);
-
-      // For demo: Save directly to local database
-      // In production: Upload to server first, then save URL
-      if (_currentUser != null) {
-        _currentUser!.avatar = 'data:image/png;base64,$base64Image';
-
-        // Update cache
-        await Globals.userRepository?.cacheUser(_currentUser!);
-
-        // Update stream
-        setUserInfo(_currentUser);
-
-        GoMepLoadingDialog.hide(context);
-        _loadingController.add(false);
-
-        Utility.toast('Cập nhật ảnh đại diện thành công!');
-        return true;
-      }
-
-      GoMepLoadingDialog.hide(context);
-      _loadingController.add(false);
-      return false;
+      _pendingAvatar = 'data:image/png;base64,$base64Image';
+      return _pendingAvatar;
     } catch (e) {
-      debugPrint('Error uploading avatar: $e');
-      GoMepLoadingDialog.hide(context);
-      _loadingController.add(false);
-      Utility.toast('Đã có lỗi xảy ra khi tải ảnh lên');
-      return false;
+      debugPrint('Error converting avatar: $e');
+      return null;
     }
   }
 
-  /// Show image picker for avatar
-  void pickAndUploadAvatar() {
+  /// Show image picker for avatar - sets pending avatar for preview
+  void pickAndUploadAvatar({Function(String)? onAvatarSelected}) {
     CustomImagePicker.showPicker(
       context,
-      (imageBytes) async {
-        await uploadAvatar(imageBytes);
+      (imageBytes) {
+        final avatarData = setAvatarFromBytes(imageBytes);
+        if (avatarData != null) {
+          onAvatarSelected?.call(avatarData);
+        } else {
+          Utility.toast('Đã có lỗi xảy ra khi tải ảnh lên');
+        }
       },
       isSelfie: true,
     );

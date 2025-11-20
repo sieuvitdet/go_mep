@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:go_mep_application/common/theme/app_colors.dart';
 import 'package:go_mep_application/common/utils/custom_navigator.dart';
-import 'package:go_mep_application/common/utils/extension.dart';
 import 'package:go_mep_application/common/widgets/custom_theme_switch.dart';
 import 'package:go_mep_application/data/model/res/user_me_res_model.dart';
 import 'package:go_mep_application/presentation/auth/change_password/ui/change_password_screen.dart';
@@ -36,12 +35,21 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _navigateToEditProfile(UserMeResModel user) async {
-    await CustomNavigator.push(context, AccountDetailScreen(user: user, accountBloc: _accountBloc));
-    widget.mainBloc.getUserInfo();
+    // Sync bloc with current user before navigating
+    _accountBloc.setUserInfo(user);
+
+    final result = await CustomNavigator.push(
+      context,
+      AccountDetailScreen(user: user, accountBloc: _accountBloc),
+    );
+
+    // Refresh user info if changes were made
+    if (result == true) {
+      widget.mainBloc.getUserInfo();
+    }
   }
 
   Uint8List _base64ToImage(String base64String) {
-    // Remove data:image/png;base64, prefix if present
     final base64Data = base64String.contains(',')
         ? base64String.split(',').last
         : base64String;
@@ -56,84 +64,11 @@ class _AccountScreenState extends State<AccountScreen> {
         child: Column(
           children: [
             // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tài khoản',
-                    style: TextStyle(
-                      color: AppColors.getTextColor(context), 
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Roboto',
-                    ),
-                  ),
-                  
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomThemeSwitch(),
-                      PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: AppColors.getTextColor(context)),
-                        color: AppColors.getBackgroundCard(context),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        onSelected: (value) async {
-                          if (value == 'change_password') {
-                            CustomNavigator.push(context, ChangePasswordScreen());
-                          } else if (value == 'logout') {
-                            _showLogoutDialog();
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem<String>(
-                            value: 'change_password',
-                            child: Row(
-                              children: [
-                                Icon(Icons.lock_outline, color: AppColors.getTextColor(context), size: 20),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Đổi mật khẩu',
-                                  style: TextStyle(
-                                    color: AppColors.getTextColor(context),
-                                    fontSize: 14,
-                                    fontFamily: 'Roboto Condensed',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'logout',
-                            child: Row(
-                              children: [
-                                Icon(Icons.logout, color: AppColors.red, size: 20),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Đăng xuất',
-                                  style: TextStyle(
-                                    color: AppColors.red,
-                                    fontSize: 14,
-                                    fontFamily: 'Roboto Condensed',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _buildHeader(),
             // User Info Card
             Expanded(
               child: StreamBuilder<UserMeResModel?>(
-                stream: widget.mainBloc.streamUserInfo.output,
+                stream: widget.mainBloc.streamUserInfo.stream,
                 initialData: null,
                 builder: (context, snapshot) {
                   if (!snapshot.hasData || snapshot.data == null) {
@@ -145,102 +80,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   }
 
                   final user = snapshot.data!;
-                  _accountBloc.setUserInfo(user);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        // User Profile Card
-                        InkWell(
-                          onTap: () => _navigateToEditProfile(user),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.getBackgroundCard(context),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: AppColors.getBackgroundCard(context)),
-                            ),
-                            child: Row(
-                              children: [
-                                // Avatar
-                                Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: AppColors.blue,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child: ClipOval(
-                                    child: user.avatar != null && user.avatar!.isNotEmpty
-                                        ? (user.avatar!.startsWith('data:image')
-                                            // Base64 image
-                                            ? Image.memory(
-                                                _base64ToImage(user.avatar!),
-                                                fit: BoxFit.cover,
-                                                width: 60,
-                                                height: 60,
-                                              )
-                                            // URL image
-                                            : Image.network(
-                                                user.avatar!,
-                                                fit: BoxFit.cover,
-                                                width: 60,
-                                                height: 60,
-                                                errorBuilder: (context, error, stackTrace) {
-                                                  return Icon(
-                                                    Icons.person,
-                                                    color: AppColors.getTextColor(context),
-                                                    size: 32,
-                                                  );
-                                                },
-                                              ))
-                                        : Icon(
-                                            Icons.person,
-                                            color: AppColors.getTextColor(context),
-                                            size: 32,
-                                          ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // User Info
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        user.fullName ?? 'Nguyễn Văn A',
-                                        style: TextStyle(
-                                          color: AppColors.getTextColor(context),
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: 'Roboto Condensed',
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Chỉnh sửa thông tin tài khoản',
-                                        style: TextStyle(
-                                          color: AppColors.getTextColor(context),
-                                          fontSize: 14,
-                                          fontFamily: 'Roboto Condensed',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: AppColors.getTextColor(context),
-                                  size: 24,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildUserProfileCard(user),
                         const SizedBox(height: 24),
                       ],
                     ),
@@ -251,6 +96,184 @@ class _AccountScreenState extends State<AccountScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Tài khoản',
+            style: TextStyle(
+              color: AppColors.getTextColor(context),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Roboto',
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              CustomThemeSwitch(),
+              _buildMoreMenu(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoreMenu() {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert, color: AppColors.getTextColor(context)),
+      color: AppColors.getBackgroundCard(context),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      onSelected: (value) async {
+        if (value == 'change_password') {
+          CustomNavigator.push(context, ChangePasswordScreen());
+        } else if (value == 'logout') {
+          _showLogoutDialog();
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          value: 'change_password',
+          child: Row(
+            children: [
+              Icon(Icons.lock_outline, color: AppColors.getTextColor(context), size: 20),
+              SizedBox(width: 12),
+              Text(
+                'Đổi mật khẩu',
+                style: TextStyle(
+                  color: AppColors.getTextColor(context),
+                  fontSize: 14,
+                  fontFamily: 'Roboto Condensed',
+                ),
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout, color: AppColors.red, size: 20),
+              SizedBox(width: 12),
+              Text(
+                'Đăng xuất',
+                style: TextStyle(
+                  color: AppColors.red,
+                  fontSize: 14,
+                  fontFamily: 'Roboto Condensed',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserProfileCard(UserMeResModel user) {
+    return InkWell(
+      onTap: () => _navigateToEditProfile(user),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.getBackgroundCard(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.getBackgroundCard(context)),
+        ),
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.blue,
+                  width: 2,
+                ),
+              ),
+              child: ClipOval(
+                child: _buildAvatarImage(user),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // User Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.fullName ?? 'Chưa cập nhật',
+                    style: TextStyle(
+                      color: AppColors.getTextColor(context),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Roboto Condensed',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Chỉnh sửa thông tin tài khoản',
+                    style: TextStyle(
+                      color: AppColors.getTextColor(context),
+                      fontSize: 14,
+                      fontFamily: 'Roboto Condensed',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right,
+              color: AppColors.getTextColor(context),
+              size: 24,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvatarImage(UserMeResModel user) {
+    if (user.avatar != null && user.avatar!.isNotEmpty) {
+      if (user.avatar!.startsWith('data:image')) {
+        return Image.memory(
+          _base64ToImage(user.avatar!),
+          fit: BoxFit.cover,
+          width: 60,
+          height: 60,
+        );
+      } else {
+        return Image.network(
+          user.avatar!,
+          fit: BoxFit.cover,
+          width: 60,
+          height: 60,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.person,
+              color: AppColors.getTextColor(context),
+              size: 32,
+            );
+          },
+        );
+      }
+    }
+
+    return Icon(
+      Icons.person,
+      color: AppColors.getTextColor(context),
+      size: 32,
     );
   }
 

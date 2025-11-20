@@ -11,30 +11,65 @@ class AccountDetailScreen extends StatefulWidget {
   final AccountBloc accountBloc;
   final UserMeResModel user;
 
-  const AccountDetailScreen({super.key, required this.user, required this.accountBloc});
+  const AccountDetailScreen({
+    super.key,
+    required this.user,
+    required this.accountBloc,
+  });
 
   @override
   State<AccountDetailScreen> createState() => _AccountDetailScreenState();
 }
 
 class _AccountDetailScreenState extends State<AccountDetailScreen> {
-  final _phoneController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _dobController = TextEditingController();
-  final _addressController = TextEditingController();
-  bool _isLoading = false;
+  // Form controllers
+  late TextEditingController _nameController;
+  late TextEditingController _dobController;
+  late TextEditingController _addressController;
+
+  // Track if data was modified
+  bool _hasChanges = false;
+
+  // Pending avatar for preview (not yet saved)
+  String? _pendingAvatar;
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.user.fullName ?? '';
-    _dobController.text = widget.user.dateOfBirth ?? '';
-    _addressController.text = widget.user.address ?? '';
+    _initControllers();
+  }
+
+  void _initControllers() {
+    _nameController = TextEditingController(text: widget.user.fullName ?? '');
+    _dobController = TextEditingController(text: widget.user.dateOfBirth ?? '');
+    _addressController = TextEditingController(text: widget.user.address ?? '');
+
+    // Listen for changes
+    _nameController.addListener(_onFieldChanged);
+    _dobController.addListener(_onFieldChanged);
+    _addressController.addListener(_onFieldChanged);
+  }
+
+  void _onFieldChanged() {
+    final hasChanges = _nameController.text != (widget.accountBloc.currentUser?.fullName ?? '') ||
+        _dobController.text != (widget.accountBloc.currentUser?.dateOfBirth ?? '') ||
+        _addressController.text != (widget.accountBloc.currentUser?.address ?? '') ||
+        _pendingAvatar != null;
+
+    if (hasChanges != _hasChanges) {
+      setState(() {
+        _hasChanges = hasChanges;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    // Clear pending avatar if not saved
+    widget.accountBloc.clearPendingAvatar();
+    _nameController.removeListener(_onFieldChanged);
+    _dobController.removeListener(_onFieldChanged);
+    _addressController.removeListener(_onFieldChanged);
     _nameController.dispose();
     _dobController.dispose();
     _addressController.dispose();
@@ -42,12 +77,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
   }
 
   Future<void> _saveProfile() async {
-    if (_isLoading) return;
-
     final fullName = _nameController.text.trim();
     final dateOfBirth = _dobController.text.trim();
     final address = _addressController.text.trim();
 
+    // Validation
     if (fullName.isEmpty) {
       Utility.toast('Vui lòng nhập họ tên');
       return;
@@ -63,30 +97,27 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    // Save to API and database
+    final result = await widget.accountBloc.updateProfile(
+      fullName: fullName,
+      dateOfBirth: dateOfBirth,
+      address: address,
+    );
 
-    try {
-      final result = await widget.accountBloc.updateProfile(fullName: fullName, dateOfBirth: dateOfBirth, address: address);
-      if (result) {
-        Utility.toast('Cập nhật thông tin thành công!');
-        Navigator.pop(context, true);
-      } else {
-        Utility.toast('Cập nhật thông tin thất bại, vui lòng thử lại');
-      }
-    } catch (e) {
-      Utility.toast('Đã có lỗi xảy ra, vui lòng thử lại');
-    } finally {
+    if (result != null) {
+      Utility.toast('Cập nhật thông tin thành công!');
       setState(() {
-        _isLoading = false;
+        _hasChanges = false;
       });
+      Navigator.pop(context, true);
+    } else {
+      Utility.toast('Cập nhật thông tin thất bại, vui lòng thử lại');
     }
   }
 
   void _showEditDialog(String title, TextEditingController controller, {int maxLines = 1}) {
     final tempController = TextEditingController(text: controller.text);
-    
+
     showDialog(
       context: context,
       builder: (dialogContext) => Dialog(
@@ -140,8 +171,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        controller.text = tempController.text;
                         Navigator.of(dialogContext).pop();
-                        widget.accountBloc.updateProfile(fullName: _nameController.text, dateOfBirth: _dobController.text, address: _addressController.text);
+                        setState(() {
+                          _hasChanges = true;
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.blue,
@@ -167,6 +201,49 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     );
   }
 
+  Future<void> _selectDate() async {
+    DateTime initialDate = DateTime.now();
+
+    // Parse existing date if available
+    if (_dobController.text.isNotEmpty) {
+      try {
+        final parts = _dobController.text.split('-');
+        if (parts.length == 3) {
+          initialDate = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+        }
+      } catch (_) {}
+    }
+
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light(useMaterial3: true).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.blue,
+              surface: AppColors.getBackgroundCard(context),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (date != null) {
+      _dobController.text = '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+      setState(() {
+        _hasChanges = true;
+      });
+    }
+  }
+
   Uint8List _base64ToImage(String base64String) {
     final base64Data = base64String.contains(',')
         ? base64String.split(',').last
@@ -174,11 +251,10 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     return base64Decode(base64Data);
   }
 
-  Widget _buildAvatarSection(UserMeResModel user) {
+  Widget _buildAvatarSection() {
     return Center(
       child: Stack(
         children: [
-          // Avatar
           Container(
             width: 120,
             height: 120,
@@ -190,41 +266,22 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
               ),
             ),
             child: ClipOval(
-              child: user.avatar != null && user.avatar!.isNotEmpty
-                  ? (user.avatar!.startsWith('data:image')
-                      ? Image.memory(
-                          _base64ToImage(user.avatar!),
-                          fit: BoxFit.cover,
-                          width: 120,
-                          height: 120,
-                        )
-                      : Image.network(
-                          user.avatar!,
-                          fit: BoxFit.cover,
-                          width: 120,
-                          height: 120,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.person,
-                              color: AppColors.getTextColor(context),
-                              size: 60,
-                            );
-                          },
-                        ))
-                  : Icon(
-                      Icons.person,
-                      color: AppColors.getTextColor(context),
-                      size: 60,
-                    ),
+              child: _buildAvatarImage(),
             ),
           ),
-          // Edit button
           Positioned(
             bottom: 0,
             right: 0,
             child: GestureDetector(
               onTap: () {
-                widget.accountBloc.pickAndUploadAvatar();
+                widget.accountBloc.pickAndUploadAvatar(
+                  onAvatarSelected: (avatarData) {
+                    setState(() {
+                      _pendingAvatar = avatarData;
+                      _hasChanges = true;
+                    });
+                  },
+                );
               },
               child: Container(
                 padding: const EdgeInsets.all(8),
@@ -246,6 +303,42 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAvatarImage() {
+    // Show pending avatar if exists, otherwise show current user avatar
+    final avatarToShow = _pendingAvatar ?? widget.user.avatar;
+
+    if (avatarToShow != null && avatarToShow.isNotEmpty) {
+      if (avatarToShow.startsWith('data:image')) {
+        return Image.memory(
+          _base64ToImage(avatarToShow),
+          fit: BoxFit.cover,
+          width: 120,
+          height: 120,
+        );
+      } else {
+        return Image.network(
+          avatarToShow,
+          fit: BoxFit.cover,
+          width: 120,
+          height: 120,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              Icons.person,
+              color: AppColors.getTextColor(context),
+              size: 60,
+            );
+          },
+        );
+      }
+    }
+
+    return Icon(
+      Icons.person,
+      color: AppColors.getTextColor(context),
+      size: 60,
     );
   }
 
@@ -271,9 +364,11 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             Gaps.hGap16,
             Expanded(
               child: CustomText(
-                text: value,
+                text: value.isEmpty ? 'Chưa cập nhật' : value,
                 fontSize: 16,
-                color: AppColors.getTextColor(context),
+                color: value.isEmpty
+                    ? AppColors.getTextColor(context).withOpacity(0.5)
+                    : AppColors.getTextColor(context),
                 maxLines: maxLines,
                 overflow: TextOverflow.ellipsis,
                 height: 1.4,
@@ -307,91 +402,65 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
         centerTitle: true,
         actions: [
           TextButton(
-            onPressed: _isLoading ? null : _saveProfile,
-            child: _isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.getTextColor(context),
-                    ),
-                  )
-                : CustomText(
-                    text: 'Lưu',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.getTextColor(context),
-                  ),
+            onPressed: _hasChanges ? _saveProfile : null,
+            child: CustomText(
+              text: 'Lưu',
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: _hasChanges
+                  ? AppColors.blue
+                  : AppColors.getTextColor(context).withOpacity(0.5),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: StreamBuilder(
-          stream: widget.accountBloc.userInfoStream,
-          builder: (context, asyncSnapshot) {
-            UserMeResModel user = asyncSnapshot.data ?? widget.user;
-            return Column(
-              children: [
-                // Avatar section
-                _buildAvatarSection(user),
-                Gaps.vGap24,
-                // Phone Number
-                _buildInfoField(
+        child: Column(
+          children: [
+            // Avatar section with stream
+            _buildAvatarSection(),
+            Gaps.vGap24,
+
+            // Phone Number (not editable)
+            StreamBuilder<UserMeResModel>(
+              stream: widget.accountBloc.userInfoStream,
+              initialData: widget.user,
+              builder: (context, snapshot) {
+                return _buildInfoField(
                   icon: Icons.smartphone,
-                  value: user.phoneNumber ?? '',
+                  value: snapshot.data?.phoneNumber ?? '',
                   isEditable: false,
-                ),
-                // Full Name
-                _buildInfoField(
-                  icon: Icons.person_outline,
-                  value: user.fullName ?? '',
-                  onTap: () {
-                    _showEditDialog('Chỉnh sửa họ tên', _nameController);
-                  },
-                ),
-                // Date of Birth
-                _buildInfoField(
-                  icon: Icons.calendar_today_outlined,
-                  value: user.dateOfBirth ?? '',
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(1950),
-                      lastDate: DateTime.now(),
-                      builder: (context, child) {
-                        return Theme(
-                          data: ThemeData.dark().copyWith(
-                            colorScheme: ColorScheme.dark(
-                              primary: AppColors.getTextColor(context),
-                              surface: Color(0xFF1E1E1E),
-                            ),
-                          ),
-                          child: child!,
-                        );
-                      },
-                    );
-                    if (date != null) {
-                      setState(() {
-                        _dobController.text = '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
-                      });
-                    }
-                  },
-                ),
-                // Address
-                _buildInfoField(
-                  icon: Icons.location_on_outlined,
-                  value: user.address ?? '',
-                  maxLines: 2,
-                  onTap: () {
-                    _showEditDialog('Chỉnh sửa địa chỉ', _addressController, maxLines: 3);
-                  },
-                ),
-              ],
-            );
-          }
+                );
+              },
+            ),
+
+            // Full Name
+            _buildInfoField(
+              icon: Icons.person_outline,
+              value: _nameController.text,
+              onTap: () {
+                _showEditDialog('Chỉnh sửa họ tên', _nameController);
+              },
+            ),
+
+            // Date of Birth
+            _buildInfoField(
+              icon: Icons.calendar_today_outlined,
+              value: _dobController.text,
+              onTap: _selectDate,
+            ),
+
+            // Address
+            _buildInfoField(
+              icon: Icons.location_on_outlined,
+              value: _addressController.text,
+              maxLines: 2,
+              onTap: () {
+                _showEditDialog('Chỉnh sửa địa chỉ', _addressController, maxLines: 3);
+              },
+            ),
+          ],
         ),
       ),
     );
